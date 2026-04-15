@@ -3,23 +3,23 @@
 import type { AuthResponse } from "@/lib/types";
 import { ApiError, api } from "@/lib/api";
 import { setToken } from "@/lib/auth";
+import { PronnectLogo } from "@/components/PronnectLogo";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { toast } from "sonner";
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/app";
+  const redirect = searchParams.get("redirect") || "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null);
     setLoading(true);
     try {
       const res = await api<AuthResponse>("/auth/login", {
@@ -31,9 +31,9 @@ export default function LoginForm() {
       router.refresh();
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message);
+        toast.error(err.message);
       } else {
-        setError("Falha ao entrar.");
+        toast.error("Falha ao entrar.");
       }
     } finally {
       setLoading(false);
@@ -41,69 +41,81 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md rounded-2xl border border-outline-variant bg-surface-container-lowest p-8 shadow-sm">
-        <h1 className="font-headline mb-6 text-center text-2xl text-primary">
-          Entrar
-        </h1>
+    <div className="flex flex-col min-h-screen items-center justify-center px-4" style={{ background: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)" }}>
+      <div className="w-full max-w-md rounded-[1.5rem] bg-white p-8 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-outline-variant/10">
+        
+        {/* LOGO */}
+        <div className="mb-2 text-center">
+          <Link href="/" className="inline-block">
+            <PronnectLogo className="text-4xl md:text-4xl" />
+          </Link>
+        </div>
+
+        {/* HEADINGS */}
+        <p className="mb-8 text-center text-sm text-on-surface-variant">
+          Que bom te ver novamente 👋<br />Faça o login na sua conta abaixo
+        </p>
+
         {searchParams.get("registered") && (
-          <p className="mb-4 rounded-lg bg-secondary-container/30 p-3 text-sm text-on-secondary-container">
-            Conta criada. Faça login para continuar.
+          <p className="mb-6 rounded-lg bg-secondary-container/30 p-3 text-center text-sm font-medium text-on-secondary-container">
+            Conta criada com sucesso. Faça login para continuar.
           </p>
         )}
-        <form onSubmit={onSubmit} className="space-y-4">
+
+        <form onSubmit={onSubmit} className="space-y-5">
           <div>
-            <label className="mb-1 block text-sm font-medium text-on-surface">
+            <label className="mb-1.5 block text-sm font-medium text-on-surface/80">
               E-mail
             </label>
             <input
               type="email"
               required
               autoComplete="email"
+              placeholder="Digite seu e-mail..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-on-surface outline-none ring-secondary focus:ring-2"
+              className="w-full rounded-xl border border-outline-variant/40 bg-white px-4 py-3 text-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary"
             />
           </div>
+
           <div>
-            <label className="mb-1 block text-sm font-medium text-on-surface">
+            <label className="mb-1.5 block text-sm font-medium text-on-surface/80">
               Senha
             </label>
             <input
               type="password"
               required
               autoComplete="current-password"
+              placeholder="Digite sua senha..."
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-on-surface outline-none ring-secondary focus:ring-2"
+              className="w-full rounded-xl border border-outline-variant/40 bg-white px-4 py-3 text-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary"
             />
           </div>
-          {error && (
-            <p className="text-sm text-error" role="alert">
-              {error}
-            </p>
-          )}
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-primary py-3 font-bold text-on-primary transition-opacity disabled:opacity-50"
+            className="mt-2 w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-primary/90 hover:scale-[1.01] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
           >
-            {loading ? "Entrando…" : "Entrar"}
+            {loading ? "Entrando..." : "Login"}
           </button>
         </form>
-        <p className="mt-6 text-center text-sm text-on-surface-variant">
-          Não tem conta?{" "}
+
+        <p className="mt-8 text-center text-sm text-on-surface-variant">
+          Não tem uma conta?{" "}
           <Link
             href="/register"
-            className="font-bold text-secondary hover:underline"
+            className="font-bold text-primary hover:underline"
           >
-            Registrar
+            Cadastre-se grátis
           </Link>
         </p>
+        
         <p className="mt-4 text-center">
           <Link
             href="/"
-            className="text-sm text-on-surface-variant hover:text-primary"
+            className="text-xs text-on-surface-variant/60 hover:text-primary transition-colors"
           >
             Voltar ao início
           </Link>

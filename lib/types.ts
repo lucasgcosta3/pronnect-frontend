@@ -23,12 +23,22 @@ export interface LoginRequest {
 
 export interface ProfessionalProfileResponse {
   id: string;
+  name?: string;
   headline: string | null;
   description: string | null;
   contactEmail: string | null;
   profileCompleted: boolean;
   skills: string[];
   createdAt: string;
+}
+
+export interface CompletedProjectResponse {
+  contractId: string;
+  proposalId: string;
+  otherPartyName: string;
+  price: number;
+  completedAt: string;
+  validatedAt: string;
 }
 
 export interface CompanyProfileResponse {

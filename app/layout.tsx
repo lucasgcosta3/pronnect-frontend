@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope, Yeseva_One, Geist } from "next/font/google";
+import { Toaster } from "sonner";
+import { FixedChatWidget } from "@/components/FixedChatWidget";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -36,9 +38,11 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${manrope.variable} ${yeseva.variable} bg-background font-body text-on-background antialiased`}
+        className={`${manrope.variable} ${yeseva.variable} bg-background font-body text-foreground antialiased`}
       >
         {children}
+        <FixedChatWidget />
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );
