@@ -41,8 +41,8 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center px-4" style={{ background: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)" }}>
-      <div className="w-full max-w-md rounded-[1.5rem] bg-white p-8 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-outline-variant/10">
+    <div className="flex flex-col min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-md rounded-[1.5rem] bg-card p-8 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-border dark:shadow-none dark:border-border">
         
         {/* LOGO */}
         <div className="mb-2 text-center">
@@ -52,19 +52,19 @@ export default function LoginForm() {
         </div>
 
         {/* HEADINGS */}
-        <p className="mb-8 text-center text-sm text-on-surface-variant">
+        <p className="mb-8 text-center text-sm text-muted-foreground">
           Que bom te ver novamente 👋<br />Faça o login na sua conta abaixo
         </p>
 
         {searchParams.get("registered") && (
-          <p className="mb-6 rounded-lg bg-secondary-container/30 p-3 text-center text-sm font-medium text-on-secondary-container">
+          <p className="mb-6 rounded-lg bg-secondary-container/30 p-3 text-center text-sm font-medium text-white">
             Conta criada com sucesso. Faça login para continuar.
           </p>
         )}
 
         <form onSubmit={onSubmit} className="space-y-5">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-on-surface/80">
+            <label className="mb-1.5 block text-sm font-medium text-foreground/80">
               E-mail
             </label>
             <input
@@ -74,12 +74,12 @@ export default function LoginForm() {
               placeholder="Digite seu e-mail..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-outline-variant/40 bg-white px-4 py-3 text-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary"
+              className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/40 hover:border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-on-surface/80">
+            <label className="mb-1.5 block text-sm font-medium text-foreground/80">
               Senha
             </label>
             <input
@@ -89,24 +89,24 @@ export default function LoginForm() {
               placeholder="Digite sua senha..."
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-outline-variant/40 bg-white px-4 py-3 text-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary"
+              className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/40 hover:border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-primary/90 hover:scale-[1.01] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+            className="mt-2 w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:scale-[1.01] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
           >
             {loading ? "Entrando..." : "Login"}
           </button>
         </form>
 
-        <p className="mt-8 text-center text-sm text-on-surface-variant">
+        <p className="mt-8 text-center text-sm text-muted-foreground">
           Não tem uma conta?{" "}
           <Link
             href="/register"
-            className="font-bold text-primary hover:underline"
+            className="font-bold text-primary dark:text-white hover:underline"
           >
             Cadastre-se grátis
           </Link>
@@ -115,7 +115,7 @@ export default function LoginForm() {
         <p className="mt-4 text-center">
           <Link
             href="/"
-            className="text-xs text-on-surface-variant/60 hover:text-primary transition-colors"
+            className="text-xs text-muted-foreground/60 hover:text-primary dark:hover:text-white transition-colors"
           >
             Voltar ao início
           </Link>

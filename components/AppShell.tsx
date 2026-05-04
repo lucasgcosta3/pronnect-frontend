@@ -12,7 +12,7 @@ export default function AppShell({
   const isChat = pathname.startsWith("/app/messages");
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)" }}>
+    <div className="min-h-screen bg-background">
       <MainNavbar />
       <main className={isChat ? "pt-[4.5rem]" : "pt-[5.5rem] pb-12"}>{children}</main>
     </div>

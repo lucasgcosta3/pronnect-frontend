@@ -4,12 +4,13 @@ import Link from "next/link";
 import { MainNavbar } from "@/components/MainNavbar";
 import { PronnectLogo } from "@/components/PronnectLogo";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LinkedInIcon, InstagramIcon, YouTubeIcon } from "@/components/SocialIcons";
 import { cn } from "@/lib/utils";
 
 const storyColumns = [
   {
-    title: "História da Empresa",
+    title: "História",
     text: "A Pronnect nasceu da necessidade de conectar talentos de tecnologia a empresas que buscam execução com excelência. Fundada em Recife, carregamos a inovação e a criatividade do ecossistema tech do Porto Digital no nosso DNA. Desde o início, trabalhamos para construir uma plataforma que valorize tanto quem contrata quanto quem executa.",
   },
   {
@@ -17,7 +18,7 @@ const storyColumns = [
     text: "Nossa missão é democratizar o acesso a profissionais qualificados de tecnologia, oferecendo um ambiente seguro, transparente e eficiente para contratações. Acreditamos que todo projeto merece o melhor talento, e todo profissional merece oportunidades que reconheçam seu valor e expertise.",
   },
   {
-    title: "Valores da Empresa",
+    title: "Valores",
     text: "Transparência em cada etapa do processo. Segurança para ambos os lados da contratação. Qualidade acima de quantidade. Respeito pelo trabalho e pelo tempo de cada profissional. Inovação constante para oferecer a melhor experiência possível na plataforma.",
   },
 ] as const;
@@ -27,25 +28,25 @@ const teamMembers = [
     name: "Lucas Ferreira",
     role: "CEO",
     desc: "Líder visionário com experiência no ecossistema tech de Recife.",
-    avatar: "https://i.pravatar.cc/200?u=lucas-team",
+    initials: "LF",
   },
   {
     name: "Mariana Costa",
     role: "COO",
     desc: "Especialista em operações e processos de plataformas digitais.",
-    avatar: "https://i.pravatar.cc/200?u=mariana-team",
+    initials: "MC",
   },
   {
     name: "Rafael Oliveira",
     role: "CTO",
     desc: "Engenheiro de software com foco em arquitetura e escalabilidade.",
-    avatar: "https://i.pravatar.cc/200?u=rafael-team",
+    initials: "RO",
   },
   {
     name: "Ana Beatriz Lima",
     role: "Head de Design",
     desc: "UX/UI designer apaixonada por criar experiências excepcionais.",
-    avatar: "https://i.pravatar.cc/200?u=ana-team",
+    initials: "AL",
   },
 ] as const;
 
@@ -64,6 +65,7 @@ export default function AboutPage() {
             fill
             className="object-cover object-center"
             sizes="100vw"
+            quality={100}
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#061428]/90 via-[#061428]/70 to-transparent" />
@@ -83,10 +85,10 @@ export default function AboutPage() {
       </header>
 
       {/* ─── OUR STORY ─── */}
-      <section className="border-b border-border/40 bg-white px-6 py-20 md:px-10 md:py-28">
+      <section className="border-b border-border/40 bg-card px-6 py-20 md:px-10 md:py-28">
         <div className="mx-auto max-w-7xl">
           <div className="mb-14 text-center">
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl lg:text-[2.5rem]">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary dark:text-white md:text-4xl lg:text-[2.5rem]">
               Conheça a Pronnect
             </h2>
           </div>
@@ -100,7 +102,7 @@ export default function AboutPage() {
                   index === 0 ? "md:pr-8" : index === 2 ? "md:pl-8" : "md:px-8"
                 )}
               >
-                <h3 className="mb-4 font-body text-lg font-bold text-primary">
+                <h3 className="mb-4 font-body text-lg font-bold text-primary dark:text-white">
                   {col.title}
                 </h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">
@@ -113,13 +115,13 @@ export default function AboutPage() {
       </section>
 
       {/* ─── MEET OUR TEAM ─── */}
-      <section className="border-b border-border/40 bg-[#f0f3f7] px-6 py-20 md:px-10 md:py-28">
+      <section className="border-b border-border/40 bg-muted/50 dark:bg-background px-6 py-20 md:px-10 md:py-28">
         <div className="mx-auto max-w-7xl">
           <div className="mb-14 text-center">
-            <span className="mb-3 block text-[11px] font-bold uppercase tracking-[0.2em] text-secondary">
+            <span className="mb-3 block text-[11px] font-bold uppercase tracking-[0.2em] text-accent">
               Quem faz acontecer
             </span>
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl lg:text-[2.5rem]">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary dark:text-white md:text-4xl lg:text-[2.5rem]">
               Nosso Time
             </h2>
           </div>
@@ -128,21 +130,19 @@ export default function AboutPage() {
             {teamMembers.map((member) => (
               <div
                 key={member.name}
-                className="flex flex-col items-center rounded-2xl border border-black/[0.06] bg-white p-8 text-center shadow-sm transition-shadow hover:shadow-md"
+                className="flex flex-col items-center rounded-2xl border border-border bg-card p-8 text-center shadow-sm transition-shadow hover:shadow-md dark:shadow-none"
               >
-                <div className="relative mb-5 h-24 w-24 overflow-hidden rounded-full border-[3px] border-white shadow-md">
-                  <Image
-                    src={member.avatar}
-                    alt={member.name}
-                    fill
-                    className="object-cover"
-                    sizes="96px"
-                  />
+                <div className="mb-5">
+                  <Avatar className="h-24 w-24 border-[3px] border-border shadow-md dark:border-border">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
+                      {member.initials}
+                    </AvatarFallback>
+                  </Avatar>
                 </div>
-                <h3 className="font-body text-base font-bold text-primary">
+                <h3 className="font-body text-base font-bold text-primary dark:text-white">
                   {member.name}
                 </h3>
-                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-secondary">
+                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-accent">
                   {member.role}
                 </p>
                 <p className="mb-5 flex-1 text-sm leading-relaxed text-muted-foreground">
@@ -150,7 +150,7 @@ export default function AboutPage() {
                 </p>
                 <Link
                   href="#"
-                  className="mb-4 text-sm font-semibold text-secondary hover:underline"
+                  className="mb-4 text-sm font-semibold text-accent hover:underline"
                 >
                   Saiba Mais
                 </Link>
@@ -158,7 +158,7 @@ export default function AboutPage() {
                   <a
                     href="#"
                     aria-label={`LinkedIn de ${member.name}`}
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-black/10 bg-white text-primary/70 transition-colors hover:bg-primary hover:text-white"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-primary/70 transition-colors hover:bg-primary hover:text-primary-foreground"
                   >
                     <LinkedInIcon size={14} />
                   </a>
@@ -170,7 +170,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="bg-[#061428] px-6 py-16 text-white md:px-10 md:py-20">
+      <footer className="bg-[--footer-bg] px-6 py-16 text-white md:px-10 md:py-20">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-10">
             <div className="lg:col-span-1">

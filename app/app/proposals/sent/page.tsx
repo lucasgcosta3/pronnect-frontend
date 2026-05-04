@@ -5,12 +5,14 @@ import { ApiError, api } from "@/lib/api";
 import { getRoleFromToken } from "@/lib/auth";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function ProposalsSentPage() {
   const role = getRoleFromToken();
   const [items, setItems] = useState<ProposalResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -30,30 +32,32 @@ export default function ProposalsSentPage() {
   }, [load]);
 
   async function cancel(id: string) {
-    if (!confirm("Cancelar esta proposta pendente?")) return;
     try {
       await api(`/proposals/${id}/cancel`, { method: "PATCH" });
+      setCancelConfirmId(null);
+      toast.success("Proposta cancelada.");
       await load();
     } catch (e) {
-      if (e instanceof ApiError) alert(e.message);
+      if (e instanceof ApiError) toast.error(e.message);
+      else toast.error("Erro ao cancelar proposta.");
     }
   }
 
   if (role !== "COMPANY") {
     return (
-      <p className="text-on-surface-variant">
+      <p className="text-muted-foreground">
         Apenas empresas enviam propostas por aqui.
       </p>
     );
   }
 
   if (loading) {
-    return <p className="text-on-surface-variant">Carregando…</p>;
+    return <p className="text-muted-foreground">Carregando…</p>;
   }
 
   return (
     <div>
-      <h1 className="font-headline mb-6 text-2xl text-primary">
+      <h1 className="font-headline mb-6 text-2xl text-primary dark:text-white">
         Propostas enviadas
       </h1>
       {error && <p className="mb-4 text-error">{error}</p>}
@@ -61,32 +65,52 @@ export default function ProposalsSentPage() {
         {items.map((p) => (
           <li
             key={p.id}
-            className="rounded-xl border border-outline-variant bg-surface-container-lowest p-4"
+            className="rounded-xl border border-border bg-card p-4"
           >
-            <p className="text-sm text-on-surface-variant">
+            <p className="text-sm text-muted-foreground">
               Status:{" "}
-              <span className="font-bold text-primary">{p.status}</span>
+              <span className="font-bold text-primary dark:text-white">{p.status}</span>
             </p>
-            <p className="mt-2 font-medium text-primary">
+            <p className="mt-2 font-medium text-primary dark:text-white">
               Valor: R$ {Number(p.price).toFixed(2)}
             </p>
-            <p className="mt-2 whitespace-pre-wrap text-on-surface">
+            <p className="mt-2 whitespace-pre-wrap text-foreground">
               {p.message}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {p.status === "PENDING" && (
-                <button
-                  type="button"
-                  onClick={() => cancel(p.id)}
-                  className="rounded-lg border border-outline-variant px-4 py-2 text-sm font-bold text-on-surface-variant"
-                >
-                  Cancelar
-                </button>
+                cancelConfirmId === p.id ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Cancelar?</span>
+                    <button
+                      type="button"
+                      onClick={() => cancel(p.id)}
+                      className="rounded-lg bg-destructive px-3 py-1.5 text-sm font-bold text-white"
+                    >
+                      Sim
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCancelConfirmId(null)}
+                      className="rounded-lg border border-border px-3 py-1.5 text-sm font-bold text-muted-foreground"
+                    >
+                      Não
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setCancelConfirmId(p.id)}
+                    className="rounded-lg border border-border px-4 py-2 text-sm font-bold text-muted-foreground"
+                  >
+                    Cancelar
+                  </button>
+                )
               )}
               {p.status === "ACCEPTED" && (
                 <Link
                   href={`/app/messages/open-proposal/${p.id}`}
-                  className="rounded-lg bg-secondary px-4 py-2 text-sm font-bold text-on-secondary"
+                  className="rounded-lg bg-accent px-4 py-2 text-sm font-bold text-accent-foreground"
                 >
                   Abrir conversa
                 </Link>
@@ -94,7 +118,7 @@ export default function ProposalsSentPage() {
               {p.contractId && (
                 <Link
                   href={`/app/contracts/${p.contractId}`}
-                  className="rounded-lg border border-outline-variant px-4 py-2 text-sm font-bold text-secondary"
+                  className="rounded-lg border border-border px-4 py-2 text-sm font-bold text-accent"
                 >
                   Contrato
                 </Link>
@@ -104,7 +128,7 @@ export default function ProposalsSentPage() {
         ))}
       </ul>
       {items.length === 0 && (
-        <p className="text-on-surface-variant">Nenhuma proposta enviada.</p>
+        <p className="text-muted-foreground">Nenhuma proposta enviada.</p>
       )}
     </div>
   );

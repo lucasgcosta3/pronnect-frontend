@@ -206,47 +206,47 @@ export default function MessagesPage() {
   return (
     <div className="flex h-[calc(100vh-4.5rem)] overflow-hidden">
       {/* ═══════════ LEFT PANEL ═══════════ */}
-      <div className="flex w-full max-w-[360px] flex-col border-r border-black/[0.06] bg-white">
-        <div className="flex h-16 items-center justify-between border-b border-black/[0.06] px-5 shrink-0">
-          <h1 className="font-headline text-lg font-bold text-primary">Mensagens</h1>
-          <span className="text-xs font-bold text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-full">{conversations.length}</span>
+      <div className="flex w-full max-w-[360px] flex-col border-r border-border bg-card">
+        <div className="flex h-16 items-center justify-between border-b border-border px-5 shrink-0">
+          <h1 className="font-headline text-lg font-bold text-primary dark:text-white">Mensagens</h1>
+          <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-1 rounded-full">{conversations.length}</span>
         </div>
         <div className="px-3 py-3 shrink-0">
-          <div className="flex items-center gap-2 rounded-xl bg-[#f0f2f5] px-3 py-2.5">
-            <span className="material-symbols-outlined text-[20px] text-on-surface-variant/50">search</span>
-            <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar conversa..." className="w-full bg-transparent text-sm text-on-surface outline-none placeholder:text-on-surface-variant/50" />
+          <div className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2.5">
+            <span className="material-symbols-outlined text-[20px] text-muted-foreground/50">search</span>
+            <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar conversa..." className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50" />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto">
           {loadingConvos ? (
-            <div className="flex items-center justify-center py-16"><div className="h-6 w-6 animate-spin rounded-full border-[3px] border-secondary border-t-transparent" /></div>
+            <div className="flex items-center justify-center py-16"><div className="h-6 w-6 animate-spin rounded-full border-[3px] border-primary border-t-transparent" /></div>
           ) : filteredConversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-              <span className="material-symbols-outlined text-[40px] text-on-surface-variant/25 mb-2">forum</span>
-              <p className="text-sm text-on-surface-variant">{searchQuery ? "Nenhuma conversa encontrada." : "Nenhuma conversa ainda."}</p>
-              {!searchQuery && <p className="text-xs text-on-surface-variant/60 mt-1">Aceite uma proposta para iniciar um chat.</p>}
+              <span className="material-symbols-outlined text-[40px] text-muted-foreground/25 mb-2">forum</span>
+              <p className="text-sm text-muted-foreground">{searchQuery ? "Nenhuma conversa encontrada." : "Nenhuma conversa ainda."}</p>
+              {!searchQuery && <p className="text-xs text-muted-foreground/60 mt-1">Aceite uma proposta para iniciar um chat.</p>}
             </div>
           ) : (
             filteredConversations.map((c) => (
-              <div key={c.id} className={`relative flex items-center gap-3 px-4 py-3.5 cursor-pointer transition-colors group ${activeId === c.id ? "bg-secondary/5 border-l-[3px] border-secondary" : "hover:bg-[#f5f6f6] border-l-[3px] border-transparent"}`}
+              <div key={c.id} className={`relative flex items-center gap-3 px-4 py-3.5 cursor-pointer transition-colors group ${activeId === c.id ? "bg-primary/5 border-l-[3px] border-primary" : "hover:bg-muted/50 border-l-[3px] border-transparent"}`}
                 onClick={() => { setActiveId(c.id); setDeleteConfirmId(null); setShowContractPanel(false); }}>
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-white text-sm font-bold">{getInitials(c.otherPartyName)}</div>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold">{getInitials(c.otherPartyName)}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-bold text-primary truncate">{c.otherPartyName}</p>
-                    <span className="text-[10px] text-on-surface-variant/60 shrink-0 ml-2">{formatDate(c.createdAt)}</span>
+                    <p className="text-sm font-bold text-primary dark:text-white truncate">{c.otherPartyName}</p>
+                    <span className="text-[10px] text-muted-foreground/60 shrink-0 ml-2">{formatDate(c.createdAt)}</span>
                   </div>
-                  <p className="text-xs text-on-surface-variant truncate mt-0.5">Proposta: R$ {Number(c.proposalPrice).toFixed(2)}</p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">Proposta: R$ {Number(c.proposalPrice).toFixed(2)}</p>
                 </div>
                 <button type="button" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(deleteConfirmId === c.id ? null : c.id); }}
-                  className="shrink-0 p-1 rounded-lg text-on-surface-variant/40 hover:text-error hover:bg-error/5 transition-colors opacity-0 group-hover:opacity-100" title="Excluir conversa">
+                  className="shrink-0 p-1 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5 transition-colors opacity-0 group-hover:opacity-100" title="Excluir conversa">
                   <span className="material-symbols-outlined text-[18px]">delete</span>
                 </button>
                 {deleteConfirmId === c.id && (
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 bg-white border border-error/20 rounded-xl px-3 py-2 shadow-lg" onClick={(e) => e.stopPropagation()}>
-                    <span className="text-xs text-error font-medium whitespace-nowrap">Excluir?</span>
-                    <button onClick={() => deleteConversation(c.id)} className="text-[11px] font-bold text-white bg-error rounded-lg px-2.5 py-1 hover:bg-error/90 transition-colors">Sim</button>
-                    <button onClick={() => setDeleteConfirmId(null)} className="text-[11px] font-bold text-on-surface-variant bg-surface-container rounded-lg px-2.5 py-1 hover:bg-surface-container-low transition-colors">Não</button>
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 bg-card border border-destructive/20 rounded-xl px-3 py-2 shadow-lg" onClick={(e) => e.stopPropagation()}>
+                    <span className="text-xs text-destructive font-medium whitespace-nowrap">Excluir?</span>
+                    <button onClick={() => deleteConversation(c.id)} className="text-[11px] font-bold text-white bg-destructive rounded-lg px-2.5 py-1 hover:bg-destructive/90 transition-colors">Sim</button>
+                    <button onClick={() => setDeleteConfirmId(null)} className="text-[11px] font-bold text-muted-foreground bg-muted rounded-lg px-2.5 py-1 hover:bg-muted/80 transition-colors">Não</button>
                   </div>
                 )}
               </div>
@@ -256,32 +256,32 @@ export default function MessagesPage() {
       </div>
 
       {/* ═══════════ RIGHT PANEL ═══════════ */}
-      <div className="flex flex-1 flex-col bg-[#efeae2]">
+      <div className="flex flex-1 flex-col bg-muted/30 dark:bg-background">
         {!activeId ? (
-          <div className="flex flex-1 flex-col items-center justify-center text-center px-8 bg-[#f0f2f5]">
-            <div className="w-20 h-20 rounded-full bg-secondary/5 flex items-center justify-center mb-5">
-              <span className="material-symbols-outlined text-[40px] text-secondary/40">chat</span>
+          <div className="flex flex-1 flex-col items-center justify-center text-center px-8 bg-muted/50 dark:bg-background">
+            <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-5">
+              <span className="material-symbols-outlined text-[40px] text-primary/40">chat</span>
             </div>
-            <h2 className="font-headline text-xl font-bold text-primary mb-2">Pronnect Chat</h2>
-            <p className="text-sm text-on-surface-variant max-w-sm leading-relaxed">Selecione uma conversa ao lado para visualizar e enviar mensagens.</p>
+            <h2 className="font-headline text-xl font-bold text-primary dark:text-white mb-2">Pronnect Chat</h2>
+            <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">Selecione uma conversa ao lado para visualizar e enviar mensagens.</p>
           </div>
         ) : (
           <>
             {/* Chat header */}
-            <div className="flex items-center gap-3 border-b border-black/[0.06] px-6 h-16 shrink-0 bg-white">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">
+            <div className="flex items-center gap-3 border-b border-border px-6 h-16 shrink-0 bg-card">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
                 {activeConversation ? getInitials(activeConversation.otherPartyName) : "?"}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-primary truncate">{activeConversation?.otherPartyName || "Conversa"}</p>
-                <p className="text-[11px] text-on-surface-variant/70">
+                <p className="text-sm font-bold text-primary dark:text-white truncate">{activeConversation?.otherPartyName || "Conversa"}</p>
+                <p className="text-[11px] text-muted-foreground/70">
                   Proposta: R$ {activeConversation ? Number(activeConversation.proposalPrice).toFixed(2) : "—"}
                 </p>
               </div>
               {/* Contract panel toggle */}
               <button
                 onClick={() => setShowContractPanel(!showContractPanel)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${showContractPanel ? "bg-secondary text-white" : "bg-surface-container text-primary hover:bg-surface-container-low"}`}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${showContractPanel ? "bg-primary text-primary-foreground" : "bg-muted text-primary hover:bg-muted/80"}`}
               >
                 <span className="material-symbols-outlined text-[16px]">assignment</span>
                 Contrato
@@ -290,45 +290,45 @@ export default function MessagesPage() {
 
             {/* ─── Contract Status Panel (collapsible) ─── */}
             {showContractPanel && contract && (
-              <div className="bg-white border-b border-black/[0.06] px-6 py-5 shrink-0 content-fade-in">
+              <div className="bg-card border-b border-border px-6 py-5 shrink-0 content-fade-in">
                 {/* Progress stepper */}
                 <div className="flex items-center justify-between mb-5">
                   {CONTRACT_STEPS.map((step, i) => (
                     <div key={step.key} className="flex items-center flex-1">
                       <div className="flex flex-col items-center text-center">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm mb-1.5 transition-colors ${
-                          i <= currentStep ? "bg-secondary text-white shadow-sm" : "bg-surface-container text-on-surface-variant/40"
+                          i <= currentStep ? "bg-accent text-accent-foreground shadow-sm" : "bg-muted text-muted-foreground/40"
                         }`}>
                           <span className="material-symbols-outlined text-[20px]">{i < currentStep ? "check" : step.icon}</span>
                         </div>
-                        <span className={`text-[10px] font-bold leading-tight max-w-[80px] ${i <= currentStep ? "text-secondary" : "text-on-surface-variant/40"}`}>
+                        <span className={`text-[10px] font-bold leading-tight max-w-[80px] ${i <= currentStep ? "text-accent" : "text-muted-foreground/40"}`}>
                           {step.label}
                         </span>
                       </div>
                       {i < CONTRACT_STEPS.length - 1 && (
-                        <div className={`flex-1 h-0.5 mx-2 mt-[-18px] rounded-full ${i < currentStep ? "bg-secondary" : "bg-surface-container"}`} />
+                        <div className={`flex-1 h-0.5 mx-2 mt-[-18px] rounded-full ${i < currentStep ? "bg-accent" : "bg-muted"}`} />
                       )}
                     </div>
                   ))}
                 </div>
 
                 {/* Financial summary */}
-                <div className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/20 mb-4">
-                  <div className="flex justify-between text-xs text-on-surface-variant mb-1">
+                <div className="bg-muted/50 rounded-xl p-4 border border-border mb-4">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
                     <span>Valor do profissional</span>
-                    <span className="font-bold text-on-surface">R$ {activeConversation ? Number(activeConversation.proposalPrice).toFixed(2) : "—"}</span>
+                    <span className="font-bold text-foreground">R$ {activeConversation ? Number(activeConversation.proposalPrice).toFixed(2) : "—"}</span>
                   </div>
-                  <div className="flex justify-between text-xs text-on-surface-variant mb-1">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
                     <span>Taxa Pronnect (10%)</span>
-                    <span className="font-bold text-on-surface">R$ {activeConversation ? (Number(activeConversation.proposalPrice) * 0.10).toFixed(2) : "—"}</span>
+                    <span className="font-bold text-foreground">R$ {activeConversation ? (Number(activeConversation.proposalPrice) * 0.10).toFixed(2) : "—"}</span>
                   </div>
-                  <div className="border-t border-outline-variant/30 pt-1 mt-1 flex justify-between text-xs font-bold text-on-surface">
+                  <div className="border-t border-border pt-1 mt-1 flex justify-between text-xs font-bold text-foreground">
                     <span>Total</span>
-                    <span className="text-secondary">R$ {activeConversation ? (Number(activeConversation.proposalPrice) * 1.10).toFixed(2) : "—"}</span>
+                    <span className="text-accent">R$ {activeConversation ? (Number(activeConversation.proposalPrice) * 1.10).toFixed(2) : "—"}</span>
                   </div>
                   {payment && (
                     <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${payment.status === "RELEASED" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${payment.status === "RELEASED" ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" : "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300"}`}>
                         <span className="material-symbols-outlined text-[12px]">{payment.status === "RELEASED" ? "check_circle" : "schedule"}</span>
                         {payment.status === "HELD" ? "Em Escrow" : "Liberado"}
                       </span>
@@ -341,7 +341,7 @@ export default function MessagesPage() {
                   {/* Company: Pay (when IN_PROGRESS and no payment) */}
                   {role === "COMPANY" && contract.status === "IN_PROGRESS" && !payment && (
                     <button onClick={handlePayment} disabled={actionLoading}
-                      className="flex-1 flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3 rounded-xl text-sm hover:bg-secondary/90 transition-colors disabled:opacity-50">
+                      className="flex-1 flex items-center justify-center gap-2 bg-accent text-accent-foreground font-bold py-3 rounded-xl text-sm hover:bg-accent/90 transition-colors disabled:opacity-50">
                       <span className="material-symbols-outlined text-[18px]">account_balance</span>
                       {actionLoading ? "Processando..." : "Realizar Pagamento (Escrow)"}
                     </button>
@@ -350,7 +350,7 @@ export default function MessagesPage() {
                   {/* Professional: Mark complete (when IN_PROGRESS and payment HELD) */}
                   {role === "PROFESSIONAL" && contract.status === "IN_PROGRESS" && payment?.status === "HELD" && (
                     <button onClick={handleComplete} disabled={actionLoading}
-                      className="flex-1 flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3 rounded-xl text-sm hover:bg-secondary/90 transition-colors disabled:opacity-50">
+                      className="flex-1 flex items-center justify-center gap-2 bg-accent text-accent-foreground font-bold py-3 rounded-xl text-sm hover:bg-accent/90 transition-colors disabled:opacity-50">
                       <span className="material-symbols-outlined text-[18px]">task_alt</span>
                       {actionLoading ? "Processando..." : "Marcar como Concluído"}
                     </button>
@@ -359,7 +359,7 @@ export default function MessagesPage() {
                   {/* Company: Validate & release (when COMPLETED) */}
                   {role === "COMPANY" && contract.status === "COMPLETED" && (
                     <button onClick={handleValidateAndRelease} disabled={actionLoading}
-                      className="flex-1 flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3 rounded-xl text-sm hover:bg-secondary/90 transition-colors disabled:opacity-50">
+                      className="flex-1 flex items-center justify-center gap-2 bg-accent text-accent-foreground font-bold py-3 rounded-xl text-sm hover:bg-accent/90 transition-colors disabled:opacity-50">
                       <span className="material-symbols-outlined text-[18px]">verified</span>
                       {actionLoading ? "Processando..." : "Aprovar Entrega e Liberar Pagamento"}
                     </button>
@@ -367,7 +367,7 @@ export default function MessagesPage() {
 
                   {/* Done state */}
                   {contract.status === "VALIDATED" && (
-                    <div className="flex-1 flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 font-bold py-3 rounded-xl text-sm border border-emerald-200">
+                    <div className="flex-1 flex items-center justify-center gap-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold py-3 rounded-xl text-sm border border-emerald-200 dark:border-emerald-700">
                       <span className="material-symbols-outlined text-[18px]">celebration</span>
                       Projeto Finalizado com Sucesso!
                     </div>
@@ -375,19 +375,19 @@ export default function MessagesPage() {
 
                   {/* Waiting states */}
                   {role === "COMPANY" && contract.status === "IN_PROGRESS" && payment?.status === "HELD" && (
-                    <div className="flex-1 flex items-center justify-center gap-2 bg-amber-50 text-amber-700 font-bold py-3 rounded-xl text-sm border border-amber-200">
+                    <div className="flex-1 flex items-center justify-center gap-2 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-bold py-3 rounded-xl text-sm border border-amber-200 dark:border-amber-700">
                       <span className="material-symbols-outlined text-[18px]">hourglass_top</span>
                       Aguardando entrega do profissional
                     </div>
                   )}
                   {role === "PROFESSIONAL" && contract.status === "IN_PROGRESS" && !payment && (
-                    <div className="flex-1 flex items-center justify-center gap-2 bg-amber-50 text-amber-700 font-bold py-3 rounded-xl text-sm border border-amber-200">
+                    <div className="flex-1 flex items-center justify-center gap-2 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-bold py-3 rounded-xl text-sm border border-amber-200 dark:border-amber-700">
                       <span className="material-symbols-outlined text-[18px]">hourglass_top</span>
                       Aguardando pagamento da empresa
                     </div>
                   )}
                   {role === "PROFESSIONAL" && contract.status === "COMPLETED" && (
-                    <div className="flex-1 flex items-center justify-center gap-2 bg-amber-50 text-amber-700 font-bold py-3 rounded-xl text-sm border border-amber-200">
+                    <div className="flex-1 flex items-center justify-center gap-2 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-bold py-3 rounded-xl text-sm border border-amber-200 dark:border-amber-700">
                       <span className="material-symbols-outlined text-[18px]">hourglass_top</span>
                       Aguardando aprovação da empresa
                     </div>
@@ -399,11 +399,11 @@ export default function MessagesPage() {
             {/* Messages area */}
             <div className="flex-1 overflow-y-auto px-6 py-4">
               {loadingMessages && messages.length === 0 ? (
-                <div className="flex items-center justify-center py-16"><div className="h-6 w-6 animate-spin rounded-full border-[3px] border-secondary border-t-transparent" /></div>
+                <div className="flex items-center justify-center py-16"><div className="h-6 w-6 animate-spin rounded-full border-[3px] border-primary border-t-transparent" /></div>
               ) : messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <span className="material-symbols-outlined text-[36px] text-on-surface-variant/20 mb-2">chat_bubble_outline</span>
-                  <p className="text-sm text-on-surface-variant">Nenhuma mensagem ainda. Comece a conversa!</p>
+                  <span className="material-symbols-outlined text-[36px] text-muted-foreground/20 mb-2">chat_bubble_outline</span>
+                  <p className="text-sm text-muted-foreground">Nenhuma mensagem ainda. Comece a conversa!</p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
@@ -411,9 +411,9 @@ export default function MessagesPage() {
                     const mine = isMine(m.senderId);
                     return (
                       <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                        <div className={`relative max-w-[70%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${mine ? "bg-secondary text-white rounded-br-md" : "bg-white text-on-surface border border-black/[0.04] rounded-bl-md"}`}>
+                        <div className={`relative max-w-[70%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${mine ? "bg-primary text-primary-foreground rounded-br-md" : "bg-card text-foreground border border-border rounded-bl-md"}`}>
                           <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
-                          <p className={`mt-1 text-[10px] text-right ${mine ? "text-white/60" : "text-on-surface-variant/50"}`}>{formatTime(m.createdAt)}</p>
+                          <p className={`mt-1 text-[10px] text-right ${mine ? "text-primary-foreground/60" : "text-muted-foreground/50"}`}>{formatTime(m.createdAt)}</p>
                         </div>
                       </div>
                     );
@@ -424,14 +424,14 @@ export default function MessagesPage() {
             </div>
 
             {/* Input area */}
-            <form onSubmit={send} className="flex items-end gap-3 border-t border-black/[0.06] px-5 py-3 bg-white shrink-0">
-              <div className="flex-1 flex items-center rounded-2xl bg-[#f0f2f5] px-4 py-3">
+            <form onSubmit={send} className="flex items-end gap-3 border-t border-border px-5 py-3 bg-card shrink-0">
+              <div className="flex-1 flex items-center rounded-2xl bg-muted px-4 py-3">
                 <input value={content} onChange={(e) => setContent(e.target.value)} maxLength={2000} placeholder="Digite uma mensagem..."
-                  className="w-full bg-transparent text-sm text-on-surface outline-none placeholder:text-on-surface-variant/50"
+                  className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(e); } }} />
               </div>
               <button type="submit" disabled={sending || !content.trim()}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary text-white transition-colors hover:bg-secondary/90 disabled:opacity-40">
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40">
                 <span className="material-symbols-outlined text-[22px]">send</span>
               </button>
             </form>

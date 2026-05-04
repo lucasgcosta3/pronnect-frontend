@@ -13,17 +13,8 @@ const nextConfig: NextConfig = {
         hostname: "picsum.photos",
         pathname: "/**",
       },
-      {
-        protocol: "https",
-        hostname: "i.pravatar.cc",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "randomuser.me",
-        pathname: "/**",
-      },
     ],
+    qualities: [75, 100],
   },
 };
 

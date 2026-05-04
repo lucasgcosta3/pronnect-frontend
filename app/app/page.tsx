@@ -40,14 +40,14 @@ export default function AppDashboardPage() {
   }, [role]);
 
   if (loading) {
-    return <p className="text-on-surface-variant">Carregando…</p>;
+    return <p className="text-muted-foreground">Carregando…</p>;
   }
 
   if (role === "ADMIN") {
     return (
       <div>
-        <h1 className="font-headline mb-4 text-2xl text-primary">Painel</h1>
-        <p className="text-on-surface-variant">
+        <h1 className="font-headline mb-4 text-2xl text-primary dark:text-white">Painel</h1>
+        <p className="text-muted-foreground">
           Conta administrativa. Use a API ou ferramentas de back-office.
         </p>
       </div>
@@ -56,21 +56,21 @@ export default function AppDashboardPage() {
 
   return (
     <div>
-      <h1 className="font-headline mb-2 text-2xl text-primary">Painel</h1>
+      <h1 className="font-headline mb-2 text-2xl text-primary dark:text-white">Painel</h1>
       {profileLabel && !needsOnboarding && (
-        <p className="mb-6 text-on-surface-variant">
-          Olá, <span className="font-semibold text-primary">{profileLabel}</span>
+        <p className="mb-6 text-muted-foreground">
+          Olá, <span className="font-semibold text-primary dark:text-white">{profileLabel}</span>
         </p>
       )}
 
       {needsOnboarding && role === "PROFESSIONAL" && (
-        <div className="mb-6 rounded-xl border border-secondary/40 bg-secondary-container/20 p-4">
-          <p className="mb-2 text-on-surface">
+        <div className="mb-6 rounded-xl border border-accent/40 bg-accent/10 p-4">
+          <p className="mb-2 text-foreground">
             Complete seu perfil e adicione habilidades para aparecer nas buscas.
           </p>
           <Link
             href="/app/professional/onboarding"
-            className="font-bold text-secondary hover:underline"
+            className="font-bold text-accent hover:underline"
           >
             Ir para onboarding
           </Link>
@@ -78,13 +78,13 @@ export default function AppDashboardPage() {
       )}
 
       {needsOnboarding && role === "COMPANY" && (
-        <div className="mb-6 rounded-xl border border-secondary/40 bg-secondary-container/20 p-4">
-          <p className="mb-2 text-on-surface">
+        <div className="mb-6 rounded-xl border border-accent/40 bg-accent/10 p-4">
+          <p className="mb-2 text-foreground">
             Cadastre os dados da empresa para enviar propostas.
           </p>
           <Link
             href="/app/company/onboarding"
-            className="font-bold text-secondary hover:underline"
+            className="font-bold text-accent hover:underline"
           >
             Ir para onboarding
           </Link>
@@ -95,12 +95,12 @@ export default function AppDashboardPage() {
         {role === "COMPANY" && (
           <Link
             href="/app/professionals"
-            className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 transition-shadow hover:shadow-md"
+            className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
           >
-            <h2 className="font-headline text-lg font-bold text-primary">
+            <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
               Buscar profissionais
             </h2>
-            <p className="mt-2 text-sm text-on-surface-variant">
+            <p className="mt-2 text-sm text-muted-foreground">
               Filtre por habilidade ou texto e envie propostas.
             </p>
           </Link>
@@ -108,12 +108,12 @@ export default function AppDashboardPage() {
         {role === "COMPANY" && (
           <Link
             href="/app/proposals/sent"
-            className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 transition-shadow hover:shadow-md"
+            className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
           >
-            <h2 className="font-headline text-lg font-bold text-primary">
+            <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
               Minhas propostas
             </h2>
-            <p className="mt-2 text-sm text-on-surface-variant">
+            <p className="mt-2 text-sm text-muted-foreground">
               Acompanhe status e cancele se ainda estiver pendente.
             </p>
           </Link>
@@ -121,12 +121,12 @@ export default function AppDashboardPage() {
         {role === "PROFESSIONAL" && (
           <Link
             href="/app/proposals/inbox"
-            className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 transition-shadow hover:shadow-md"
+            className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
           >
-            <h2 className="font-headline text-lg font-bold text-primary">
+            <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
               Propostas recebidas
             </h2>
-            <p className="mt-2 text-sm text-on-surface-variant">
+            <p className="mt-2 text-sm text-muted-foreground">
               Aceite ou recuse convites de empresas.
             </p>
           </Link>
@@ -134,12 +134,12 @@ export default function AppDashboardPage() {
         {(role === "COMPANY" || role === "PROFESSIONAL") && (
           <Link
             href="/app/messages"
-            className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 transition-shadow hover:shadow-md"
+            className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
           >
-            <h2 className="font-headline text-lg font-bold text-primary">
+            <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
               Mensagens
             </h2>
-            <p className="mt-2 text-sm text-on-surface-variant">
+            <p className="mt-2 text-sm text-muted-foreground">
               Conversas vinculadas a propostas aceitas.
             </p>
           </Link>

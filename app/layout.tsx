@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Manrope, Yeseva_One, Geist } from "next/font/google";
 import { Toaster } from "sonner";
 import { FixedChatWidget } from "@/components/FixedChatWidget";
+import { ThemeProvider } from "@/components/ThemeProvider";
+
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={cn("scroll-smooth", "font-sans", geist.variable)}>
+    <html lang="pt-BR" className={cn("scroll-smooth", "font-sans", geist.variable)} suppressHydrationWarning>
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
@@ -40,9 +42,16 @@ export default function RootLayout({
       <body
         className={`${manrope.variable} ${yeseva.variable} bg-background font-body text-foreground antialiased`}
       >
-        {children}
-        <FixedChatWidget />
-        <Toaster position="top-right" richColors />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange={false}
+        >
+          {children}
+          <FixedChatWidget />
+          <Toaster position="top-right" richColors />
+        </ThemeProvider>
       </body>
     </html>
   );

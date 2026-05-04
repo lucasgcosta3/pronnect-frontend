@@ -1,5 +1,7 @@
 import type { AccountRole } from "./types";
 
+// TODO (produção): migrar token para httpOnly cookie (definido pelo backend)
+// para proteção contra XSS. localStorage é aceitável para MVP.
 const TOKEN_KEY = "pronnect_token";
 
 export function getToken(): string | null {
@@ -19,6 +21,8 @@ export interface JwtPayload {
   sub?: string;
   role?: AccountRole;
   accountId?: string;
+  name?: string;
+  fullName?: string;
   exp?: number;
 }
 

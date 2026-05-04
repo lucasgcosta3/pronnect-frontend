@@ -2,7 +2,7 @@ import { getToken } from "./auth";
 import type { ApiErrorBody } from "./types";
 
 export const getApiBaseUrl = () =>
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8080";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "https://pronnect-api-production.up.railway.app";
 
 export class ApiError extends Error {
   constructor(

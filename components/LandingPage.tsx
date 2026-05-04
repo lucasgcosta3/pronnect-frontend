@@ -143,33 +143,33 @@ export default function LandingPage() {
     <>
       <MainNavbar />
 
-      <header className="border-b border-border/40 bg-white pt-[4.5rem]">
+      <header className="border-b border-border/40 bg-background pt-[4.5rem]">
         <div className="mx-auto max-w-7xl px-6 py-14 md:px-10 md:py-20 lg:py-24">
           <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-16">
             <div className="max-w-xl lg:max-w-none">
               <div className="mb-8 flex flex-wrap gap-x-8 gap-y-4 text-xs font-medium text-muted-foreground md:text-sm">
                 <div className="flex flex-col items-center gap-1.5 text-center sm:items-start sm:text-left">
-                  <span className="material-symbols-outlined text-xl text-secondary">
+                  <span className="material-symbols-outlined text-xl text-accent dark:text-accent">
                     check_circle
                   </span>
                   <span>Publicação gratuita</span>
                 </div>
                 <div className="flex flex-col items-center gap-1.5 text-center sm:items-start sm:text-left">
-                  <span className="material-symbols-outlined text-xl text-secondary">
+                  <span className="material-symbols-outlined text-xl text-accent dark:text-accent">
                     favorite
                   </span>
                   <span>Satisfação garantida</span>
                 </div>
                 <div className="flex flex-col items-center gap-1.5 text-center sm:items-start sm:text-left">
-                  <span className="material-symbols-outlined text-xl text-secondary">
+                  <span className="material-symbols-outlined text-xl text-accent dark:text-accent">
                     payments
                   </span>
                   <span>Pagamentos protegidos</span>
                 </div>
               </div>
-              <h1 className="font-body text-3xl font-bold leading-tight tracking-tight text-primary md:text-4xl lg:text-[2.75rem] lg:leading-[1.15]">
+              <h1 className="font-body text-3xl font-bold leading-tight tracking-tight text-primary dark:text-white md:text-4xl lg:text-[2.75rem] lg:leading-[1.15]">
                 Freelancers qualificados prontos para trabalhar no seu projeto{" "}
-                <span className="text-secondary">hoje mesmo</span>
+                <span className="text-accent">hoje mesmo</span>
               </h1>
               <p className="mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">
                 Conectamos talento e necessidade com propostas seguras, chat
@@ -179,13 +179,13 @@ export default function LandingPage() {
               <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
                 <Link
                   href={role ? "/app/professionals" : "/register"}
-                  className="inline-flex h-12 items-center justify-center rounded-full bg-secondary px-8 text-base font-semibold text-white shadow-md hover:bg-secondary/90 transition-colors"
+                  className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90 transition-colors dark:shadow-lg dark:shadow-primary/20"
                 >
                   Eu quero contratar
                 </Link>
                 <Link
                   href="#para-profissionais"
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary underline-offset-4 hover:underline"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary dark:text-white underline-offset-4 hover:underline"
                 >
                   Você quer trabalhar?
                   <span aria-hidden>→</span>
@@ -195,12 +195,12 @@ export default function LandingPage() {
 
             <div className="relative mx-auto w-full max-w-md lg:max-w-none">
               <div
-                className="pointer-events-none absolute left-1/2 top-1/2 h-[118%] w-[118%] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-secondary/25 md:max-w-[480px]"
+                className="pointer-events-none absolute left-1/2 top-1/2 h-[118%] w-[118%] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-accent/25 md:max-w-[480px]"
                 aria-hidden
               />
-              <div className="pointer-events-none absolute left-1/2 top-1/2 h-[95%] w-[95%] max-w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-secondary/[0.06] md:max-w-[440px]" />
+              <div className="pointer-events-none absolute left-1/2 top-1/2 h-[95%] w-[95%] max-w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/[0.06] md:max-w-[440px]" />
               <div className="relative mx-auto aspect-square w-[min(100%,320px)] md:w-[min(100%,380px)]">
-                <div className="absolute inset-0 rounded-full border-4 border-white shadow-[0_24px_60px_-12px_rgba(0,32,69,0.18)]">
+                <div className="absolute inset-0 rounded-full border-4 border-background shadow-[0_24px_60px_-12px_rgba(0,32,69,0.18)] dark:shadow-none">
                   <Image
                     src="/hero-professional.png"
                     alt="Profissional em escritório moderno trabalhando no laptop"
@@ -214,11 +214,11 @@ export default function LandingPage() {
                   <div
                     key={icon}
                     className={cn(
-                      "absolute flex size-11 items-center justify-center rounded-full border border-secondary/20 bg-white shadow-md md:size-12",
+                      "absolute flex size-11 items-center justify-center rounded-full border border-border bg-card shadow-md md:size-12",
                       style
                     )}
                   >
-                    <span className="material-symbols-outlined text-xl text-secondary md:text-2xl">
+                    <span className="material-symbols-outlined text-xl text-accent md:text-2xl">
                       {icon}
                     </span>
                   </div>
@@ -231,26 +231,26 @@ export default function LandingPage() {
 
       <section
         id="como-funciona"
-        className="border-b border-border/40 bg-white px-6 py-20 md:px-10 md:py-28"
+        className="border-b border-border/40 bg-background px-6 py-20 md:px-10 md:py-28"
       >
         <div className="mx-auto max-w-7xl">
           <div className="mb-14 max-w-2xl">
-            <span className="mb-3 block text-[11px] font-bold uppercase tracking-[0.2em] text-secondary">
+            <span className="mb-3 block text-[11px] font-bold uppercase tracking-[0.2em] text-accent">
               Comece agora
             </span>
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl lg:text-[2.5rem]">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary dark:text-white md:text-4xl lg:text-[2.5rem]">
               Como funciona
             </h2>
           </div>
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
             {processSteps.map((s) => (
               <div key={s.title} className="flex flex-col">
-                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-secondary shadow-sm">
-                  <span className="material-symbols-outlined text-2xl text-white">
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-primary shadow-sm dark:shadow-lg dark:shadow-primary/15">
+                  <span className="material-symbols-outlined text-2xl text-primary-foreground">
                     {s.icon}
                   </span>
                 </div>
-                <h3 className="mb-2 font-body text-lg font-bold text-primary">
+                <h3 className="mb-2 font-body text-lg font-bold text-primary dark:text-white">
                   {s.title}
                 </h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">
@@ -264,40 +264,40 @@ export default function LandingPage() {
 
       <section
         id="confianca"
-        className="border-b border-border/40 bg-[#f0f3f7] px-6 py-20 md:px-10 md:py-28"
+        className="border-b border-border/40 bg-muted/50 dark:bg-card/40 px-6 py-20 md:px-10 md:py-28"
       >
         <div className="mx-auto max-w-7xl">
           <div className="mb-14 max-w-3xl">
-            <span className="mb-3 block text-[11px] font-bold uppercase tracking-[0.2em] text-secondary">
+            <span className="mb-3 block text-[11px] font-bold uppercase tracking-[0.2em] text-accent">
               Confiança
             </span>
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl lg:text-[2.5rem]">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary dark:text-white md:text-4xl lg:text-[2.5rem]">
               Confiança de quem lidera
             </h2>
           </div>
           <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch lg:gap-10">
-            <div className="flex flex-col rounded-xl border border-black/[0.06] bg-white p-8 shadow-[0_20px_50px_-24px_rgba(0,32,69,0.25)] md:p-10 lg:p-12">
+            <div className="flex flex-col rounded-xl border border-border bg-card p-8 shadow-[0_20px_50px_-24px_rgba(0,32,69,0.25)] md:p-10 lg:p-12 dark:shadow-none">
               <span
-                className="font-headline mb-6 block text-6xl leading-none text-secondary md:text-7xl"
+                className="font-headline mb-6 block text-6xl leading-none text-accent md:text-7xl"
                 aria-hidden
               >
                 &ldquo;
               </span>
-              <blockquote className="font-headline mb-10 flex-1 text-xl leading-snug text-primary md:text-2xl lg:text-[1.65rem] lg:leading-snug">
+              <blockquote className="font-headline mb-10 flex-1 text-xl leading-snug text-primary dark:text-white md:text-2xl lg:text-[1.65rem] lg:leading-snug">
                 A Pronnect mudou como fechamos squads externos: menos atrito,
                 mais previsibilidade e visibilidade do que importa.
               </blockquote>
               <div className="flex items-center gap-4 border-t border-border/60 pt-8">
                 <Avatar
                   size="lg"
-                  className="size-14 border-2 border-secondary/35"
+                  className="size-14 border-2 border-accent/35"
                 >
-                  <AvatarFallback className="bg-primary text-base font-semibold text-white">
+                  <AvatarFallback className="bg-primary text-base font-semibold text-primary-foreground">
                     RS
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold text-primary">Ricardo Salles</p>
+                  <p className="font-semibold text-primary dark:text-white">Ricardo Salles</p>
                   <p className="text-sm text-muted-foreground">
                     Diretor de Operações, VisionTech
                   </p>
@@ -315,19 +315,19 @@ export default function LandingPage() {
                   sizes="(max-width: 1024px) 50vw, 25vw"
                 />
               </div>
-              <div className="flex flex-col justify-center rounded-xl bg-secondary p-6 text-white shadow-inner sm:p-8">
+              <div className="flex flex-col justify-center rounded-xl bg-accent p-6 text-accent-foreground shadow-inner sm:p-8">
                 <p className="font-headline text-3xl font-bold sm:text-4xl">
                   98%
                 </p>
-                <p className="mt-2 text-sm font-medium leading-snug text-white/95">
+                <p className="mt-2 text-sm font-medium leading-snug text-accent-foreground/80">
                   Taxa de satisfação entre usuários ativos
                 </p>
               </div>
-              <div className="flex flex-col justify-center rounded-xl bg-primary p-6 text-white shadow-inner sm:p-8">
+              <div className="flex flex-col justify-center rounded-xl bg-primary p-6 text-primary-foreground shadow-inner sm:p-8">
                 <p className="font-headline text-3xl font-bold sm:text-4xl">
                   500+
                 </p>
-                <p className="mt-2 text-sm font-medium leading-snug text-white/90">
+                <p className="mt-2 text-sm font-medium leading-snug text-primary-foreground/80">
                   Projetos e contratações na plataforma
                 </p>
               </div>
@@ -348,9 +348,9 @@ export default function LandingPage() {
       <section className="grid md:grid-cols-2">
         <div
           id="para-clientes"
-          className="bg-primary px-8 py-16 text-white md:px-12 md:py-24 lg:px-16"
+          className="bg-[#4C6EF5] px-8 py-16 text-white md:px-12 md:py-24 lg:px-16"
         >
-          <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.25em] text-secondary-fixed">
+          <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.25em] text-white/80">
             Para clientes
           </p>
           <h2 className="font-headline mb-10 text-3xl font-bold leading-tight md:text-4xl">
@@ -359,7 +359,7 @@ export default function LandingPage() {
           <ul className="space-y-8">
             {clientFeatures.map((f) => (
               <li key={f.title} className="flex gap-4">
-                <span className="material-symbols-outlined mt-0.5 shrink-0 text-secondary-fixed text-2xl">
+                <span className="material-symbols-outlined mt-0.5 shrink-0 text-white/80 text-2xl">
                   {f.icon}
                 </span>
                 <div>
@@ -373,7 +373,7 @@ export default function LandingPage() {
           </ul>
           <Link
             href="/register"
-            className="mt-10 inline-flex items-center gap-1 text-sm font-semibold text-secondary-fixed hover:text-white"
+            className="mt-10 inline-flex items-center gap-1 text-sm font-semibold text-white/80 hover:text-white"
           >
             Contratar talento
             <span className="material-symbols-outlined text-lg">arrow_forward</span>
@@ -381,7 +381,7 @@ export default function LandingPage() {
         </div>
         <div
           id="para-profissionais"
-          className="bg-[#0a3d36] px-8 py-16 text-white md:px-12 md:py-24 lg:px-16"
+          className="bg-[#0a3d36] dark:bg-[#0d3830] px-8 py-16 text-white md:px-12 md:py-24 lg:px-16"
         >
           <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.25em] text-emerald-200/90">
             Para profissionais
@@ -416,12 +416,12 @@ export default function LandingPage() {
 
       <section
         id="seguranca"
-        className="border-b border-border/40 bg-[#f0f3f7] px-6 py-20 md:px-10 md:py-28"
+        className="border-b border-border/40 bg-muted/50 dark:bg-card/40 px-6 py-20 md:px-10 md:py-28"
       >
         <div className="mx-auto max-w-5xl">
-          <div className="rounded-xl border border-black/[0.06] bg-white p-8 shadow-[0_24px_60px_-28px_rgba(0,32,69,0.2)] md:p-12 md:pt-14">
+          <div className="rounded-xl border border-border bg-card p-8 shadow-[0_24px_60px_-28px_rgba(0,32,69,0.2)] md:p-12 md:pt-14 dark:shadow-none">
             <div className="mb-10 text-center">
-              <h2 className="font-headline text-3xl font-bold text-primary md:text-[2rem]">
+              <h2 className="font-headline text-3xl font-bold text-primary dark:text-white md:text-[2rem]">
                 Segurança e confiança no centro
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
@@ -432,11 +432,11 @@ export default function LandingPage() {
             <div className="grid gap-8 md:grid-cols-2 md:gap-x-12 md:gap-y-10">
               {securityItems.map((item) => (
                 <div key={item.title} className="flex gap-4">
-                  <span className="material-symbols-outlined shrink-0 text-2xl text-secondary">
+                  <span className="material-symbols-outlined shrink-0 text-2xl text-accent">
                     {item.icon}
                   </span>
                   <div>
-                    <h3 className="mb-1.5 font-semibold text-primary">
+                    <h3 className="mb-1.5 font-semibold text-primary dark:text-white">
                       {item.title}
                     </h3>
                     <p className="text-sm leading-relaxed text-muted-foreground">
@@ -452,11 +452,11 @@ export default function LandingPage() {
 
       <section
         id="ajuda"
-        className="bg-white px-6 py-20 md:px-10 md:py-28"
+        className="bg-background px-6 py-20 md:px-10 md:py-28"
       >
         <div className="mx-auto max-w-7xl">
           <div className="mb-12 text-center md:mb-14">
-            <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">
+            <h2 className="font-headline text-3xl font-bold text-primary dark:text-white md:text-4xl">
               Precisa de ajuda?
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
@@ -467,15 +467,15 @@ export default function LandingPage() {
             {helpOptions.map((opt) => (
               <Card
                 key={opt.title}
-                className="border-border/80 shadow-sm transition-shadow hover:shadow-md"
+                className="border-border/80 shadow-sm transition-shadow hover:shadow-md dark:shadow-none"
               >
                 <CardHeader>
-                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/10">
-                    <span className="material-symbols-outlined text-2xl text-secondary">
+                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10">
+                    <span className="material-symbols-outlined text-2xl text-accent">
                       {opt.icon}
                     </span>
                   </div>
-                  <CardTitle className="font-headline text-lg text-primary">
+                  <CardTitle className="font-headline text-lg text-primary dark:text-white">
                     {opt.title}
                   </CardTitle>
                   <CardDescription className="text-sm leading-relaxed">
@@ -485,7 +485,7 @@ export default function LandingPage() {
                 <CardContent>
                   <Link
                     href={opt.href}
-                    className="text-sm font-semibold text-secondary hover:underline"
+                    className="text-sm font-semibold text-accent hover:underline"
                   >
                     Acessar
                   </Link>
@@ -496,7 +496,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="bg-[#061428] px-6 py-16 text-white md:px-10 md:py-20">
+      <footer className="bg-[--footer-bg] px-6 py-16 text-white md:px-10 md:py-20">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-10">
             <div className="lg:col-span-1">

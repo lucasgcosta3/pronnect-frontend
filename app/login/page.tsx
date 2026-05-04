@@ -6,7 +6,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-background">
-          <p className="text-on-surface-variant">Carregando…</p>
+          <p className="text-muted-foreground">Carregando…</p>
         </div>
       }
     >

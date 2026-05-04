@@ -10,7 +10,7 @@ export function PronnectLogo({ className, inverted }: PronnectLogoProps) {
   return (
     <span
       className={cn(
-        "font-headline text-2xl font-bold tracking-tight text-primary md:text-[1.75rem]",
+        "font-headline text-2xl font-bold tracking-tight text-primary dark:text-white md:text-[1.75rem]",
         inverted && "text-white",
         className
       )}

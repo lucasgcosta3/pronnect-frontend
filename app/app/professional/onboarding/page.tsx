@@ -7,22 +7,11 @@ import type {
   ConversationResponse,
 } from "@/lib/types";
 import { ApiError, api } from "@/lib/api";
-import { getRoleFromToken } from "@/lib/auth";
+import { getRoleFromToken, getToken, decodeJwtPayload } from "@/lib/auth";
 import Link from "next/link";
-import { FormEvent, useEffect, useState, useCallback, useRef } from "react";
+import { FormEvent, useEffect, useState, useCallback } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
-
-// ─── Helper: profile photo from localStorage ───
-const PHOTO_KEY = "pronnect_profile_photo";
-
-function getSavedPhoto(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(PHOTO_KEY);
-}
-function savePhoto(dataUrl: string) {
-  localStorage.setItem(PHOTO_KEY, dataUrl);
-}
 
 // ─── Helper: completion progress ───
 function getCompletionInfo(
@@ -43,6 +32,9 @@ function getCompletionInfo(
 
 export default function ProfessionalProfilePage() {
   const role = getRoleFromToken();
+  const token = getToken();
+  const payload = token ? decodeJwtPayload(token) : null;
+  const tokenName = payload?.name || payload?.fullName || "";
 
   const [profileName, setProfileName] = useState("");
   const [headline, setHeadline] = useState("");
@@ -56,7 +48,6 @@ export default function ProfessionalProfilePage() {
   const [saving, setSaving] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [proposals, setProposals] = useState<ProposalResponse[]>([]);
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [skillInput, setSkillInput] = useState("");
   const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({});
 
@@ -65,28 +56,28 @@ export default function ProfessionalProfilePage() {
     { proposalId: string; otherPartyName: string; price: number; completedAt: string }[]
   >([]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   // ─── Load profile data ───
   const loadProfile = useCallback(async () => {
     try {
       const me = await api<ProfessionalProfileResponse>("/professionals/me");
       setProfile(me);
-      setProfileName(me.name || "");
+      setProfileName(me.name || tokenName);
       setHeadline(me.headline || "");
       setDescription(me.description || "");
-      setContactEmail(me.contactEmail || "");
+      setContactEmail(me.contactEmail || payload?.sub || "");
 
       setMySkills(me.skills || []);
     } catch {
       // not created yet
+      setProfileName(tokenName);
+      setContactEmail(payload?.sub || "");
     }
 
     try {
     const skills = await api<{ id: string; name: string }[]>("/skills");
     setAvailableSkills(skills);
   } catch (err) {
-    console.error("Erro ao carregar skills:", err);
+    console.warn("Aviso ao carregar skills:", err instanceof Error ? err.message : String(err));
   }
 
     try {
@@ -115,7 +106,7 @@ export default function ProfessionalProfilePage() {
     } catch {}
 
     setLoading(false);
-  }, []);
+  }, [tokenName, payload?.sub]);
 
   useEffect(() => {
     if (role !== "PROFESSIONAL") {
@@ -123,7 +114,6 @@ export default function ProfessionalProfilePage() {
       return;
     }
     loadProfile();
-    setProfilePhoto(getSavedPhoto());
   }, [role, loadProfile]);
 
   // ─── Form submission ───
@@ -145,21 +135,42 @@ export default function ProfessionalProfilePage() {
 
   setSaving(true);
   try {
-    // 1. Salvar campos do perfil
+    const profileData = { name: profileName, headline, description, contactEmail };
+
+    // 1. Criar ou atualizar perfil
     if (!profile) {
-      await api("/professionals", {
-        method: "POST",
-        json: { name: profileName, headline, description, contactEmail },
-      });
+      try {
+        await api("/professionals", {
+          method: "POST",
+          json: profileData,
+        });
+      } catch (err) {
+        // Se já existe (ex.: criação anterior parcial), faz PUT como fallback
+        if (err instanceof ApiError && (err.status === 400 || err.status === 409)) {
+          await api("/professionals", {
+            method: "PUT",
+            json: profileData,
+          });
+        } else {
+          throw err;
+        }
+      }
     } else {
       await api("/professionals", {
         method: "PUT",
-        json: { name: profileName, headline, description, contactEmail },
+        json: profileData,
       });
     }
 
-    // 2. Resolver nomes de skill → UUIDs
-    const skillsNoApi = profile?.skills ?? [];             // string[] de nomes
+    // 2. Recarregar perfil para ter o estado atualizado antes de salvar skills
+    let currentProfile: ProfessionalProfileResponse | null = null;
+    try {
+      currentProfile = await api<ProfessionalProfileResponse>("/professionals/me");
+      setProfile(currentProfile);
+    } catch { /* continua mesmo sem recarregar */ }
+
+    // 3. Resolver nomes de skill → UUIDs
+    const skillsNoApi = currentProfile?.skills ?? profile?.skills ?? [];
     const skillsParaAdicionar = mySkills.filter((s) => !skillsNoApi.includes(s));
     const skillsParaRemover   = skillsNoApi.filter((s) => !mySkills.includes(s));
 
@@ -169,9 +180,9 @@ export default function ProfessionalProfilePage() {
       );
       if (!found) continue; // skill digitada não existe no catálogo
       try {
-        await api("/professionals/me/skills", {   // ← rota correta
+        await api("/professionals/me/skills", {
           method: "POST",
-          json: { skillId: found.id },            // ← payload correto
+          json: { skillId: found.id },
         });
       } catch { /* ignora duplicata */ }
     }
@@ -182,7 +193,7 @@ export default function ProfessionalProfilePage() {
       );
       if (!found) continue;
       try {
-        await api(`/professionals/me/skills/${found.id}`, {  // ← UUID no path
+        await api(`/professionals/me/skills/${found.id}`, {
           method: "DELETE",
         });
       } catch { /* ignora */ }
@@ -244,34 +255,17 @@ export default function ProfessionalProfilePage() {
     }
   }
 
-  // ─── Photo upload ───
-  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Imagem muito grande. Máximo: 2MB.");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      savePhoto(result);
-      setProfilePhoto(result);
-      toast.success("Foto de perfil atualizada!");
-    };
-    reader.readAsDataURL(file);
-  }
 
 
   // ─── Completion info ───
   const completion = getCompletionInfo(profile, mySkills.length, profileName);
 
   // ─── Display name ───
-  const displayName = profileName || profile?.name || "Profissional";
+  const displayName = profileName || profile?.name || tokenName || "Profissional";
   const avatarInitial = displayName.charAt(0).toUpperCase();
 
   if (role !== "PROFESSIONAL") {
-    return <p className="text-on-surface-variant text-center mt-20">Acesso negado.</p>;
+    return <p className="text-muted-foreground dark:text-gray-300 text-center mt-20">Acesso negado.</p>;
   }
 
   if (loading) {
@@ -299,39 +293,16 @@ export default function ProfessionalProfilePage() {
           <aside className="w-full lg:w-[30%] flex flex-col gap-5 lg:sticky lg:top-28">
 
             {/* Profile Card */}
-            <div className="bg-white rounded-3xl p-8 flex flex-col items-center text-center shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-black/[0.04]">
-              {/* Avatar with upload */}
-              <div className="relative w-28 h-28 mb-5 group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                {profilePhoto ? (
-                  <div className="w-28 h-28 rounded-full overflow-hidden border-[3px] border-white shadow-md">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={profilePhoto} alt={displayName} className="w-full h-full object-cover" />
-                  </div>
-                ) : (
-                  <Avatar className="w-28 h-28 shadow-md border-[3px] border-white">
-                    <AvatarFallback className="bg-primary text-white text-4xl font-bold">
-                      {avatarInitial}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                {/* Camera overlay */}
-                <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-[24px] opacity-0 group-hover:opacity-100 transition-opacity">
-                    photo_camera
-                  </span>
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handlePhotoChange}
-                />
-              </div>
+            <div className="bg-card rounded-3xl p-8 flex flex-col items-center text-center shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-border dark:shadow-none">
+              <Avatar className="w-28 h-28 mb-5 shadow-md border-[3px] border-white">
+                <AvatarFallback className="bg-primary text-white text-4xl font-bold">
+                  {avatarInitial}
+                </AvatarFallback>
+              </Avatar>
 
-              <h1 className="font-headline text-xl text-primary font-bold capitalize">{displayName}</h1>
-              <p className="text-sm text-on-surface-variant mt-0.5">
-                {profile?.headline || <span className="italic text-on-surface-variant/50">Adicione seu cargo / função</span>}
+              <h1 className="font-headline text-xl text-primary dark:text-white font-bold capitalize">{displayName}</h1>
+              <p className="text-sm text-muted-foreground dark:text-gray-300 mt-0.5">
+                {profile?.headline || <span className="italic text-muted-foreground/50 dark:text-gray-400">Adicione seu cargo / função</span>}
               </p>
 
               {profile?.profileCompleted && (
@@ -343,47 +314,47 @@ export default function ProfessionalProfilePage() {
               {/* Actions */}
               <button
                 onClick={() => setShowEditModal(true)}
-                className="w-full mt-5 bg-white border border-black/10 hover:bg-surface-container-lowest text-primary font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
+                className="w-full mt-5 bg-card border border-black/10 hover:bg-surface-container-low dark:bg-card/40 text-primary dark:text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
               >
                 <span className="material-symbols-outlined text-[18px]">edit</span> Editar Perfil
               </button>
             </div>
 
             {/* Sobre */}
-            <div className="bg-white rounded-3xl p-6 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-black/[0.04]">
-              <h3 className="font-headline text-base text-primary font-bold mb-3">Sobre</h3>
+            <div className="bg-card rounded-3xl p-6 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-border dark:shadow-none">
+              <h3 className="font-headline text-base text-primary dark:text-white font-bold mb-3">Sobre</h3>
               {profile?.description ? (
-                <p className="text-sm text-on-surface-variant leading-relaxed">{profile.description}</p>
+                <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">{profile.description}</p>
               ) : (
-                <p className="text-sm text-on-surface-variant/50 italic">
+                <p className="text-sm text-muted-foreground/50 dark:text-gray-400 italic">
                   Clique em &quot;Editar Perfil&quot; para adicionar sua descrição.
                 </p>
               )}
             </div>
 
             {/* Contato */}
-            <div className="bg-white rounded-3xl p-6 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-black/[0.04]">
-              <h3 className="font-headline text-base text-primary font-bold mb-4">Contato</h3>
-              <div className="flex flex-col gap-3 text-sm text-on-surface-variant">
+            <div className="bg-card rounded-3xl p-6 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-border dark:shadow-none">
+              <h3 className="font-headline text-base text-primary dark:text-white font-bold mb-4">Contato</h3>
+              <div className="flex flex-col gap-3 text-sm text-muted-foreground dark:text-gray-300">
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[18px] text-on-surface-variant/70">mail</span>
-                  {profile?.contactEmail || <span className="italic text-on-surface-variant/50">Não configurado</span>}
+                  <span className="material-symbols-outlined text-[18px] text-muted-foreground/70 dark:text-gray-400">mail</span>
+                  {profile?.contactEmail || <span className="italic text-muted-foreground/50 dark:text-gray-400">Não configurado</span>}
                 </div>
               </div>
             </div>
 
             {/* Habilidades */}
-            <div className="bg-white rounded-3xl p-6 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-black/[0.04]">
-              <h3 className="font-headline text-base text-primary font-bold mb-4">Habilidades</h3>
+            <div className="bg-card rounded-3xl p-6 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-border dark:shadow-none">
+              <h3 className="font-headline text-base text-primary dark:text-white font-bold mb-4">Habilidades</h3>
               <div className="flex flex-wrap gap-2">
                 {mySkills.length > 0 ? (
                   mySkills.map((s) => (
-                    <span key={s} className="bg-primary/5 text-primary px-3 py-1.5 rounded-lg text-xs font-bold border border-primary/10">
+                    <span key={s} className="bg-primary/5 text-primary dark:text-white px-3 py-1.5 rounded-lg text-xs font-bold border border-primary/10">
                       {s}
                     </span>
                   ))
                 ) : (
-                  <p className="text-sm text-on-surface-variant/50 italic">Nenhuma skill configurada. Edite seu perfil para adicionar.</p>
+                  <p className="text-sm text-muted-foreground/50 dark:text-gray-400 italic">Nenhuma skill configurada. Edite seu perfil para adicionar.</p>
                 )}
               </div>
             </div>
@@ -396,14 +367,14 @@ export default function ProfessionalProfilePage() {
 
             {/* Onboarding Banner (if profile not completed) */}
             {(!profile || !profile.profileCompleted) && (
-              <div className="bg-white rounded-3xl p-6 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-amber-200/60">
+              <div className="bg-card rounded-3xl p-6 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-amber-200/60">
                 <div className="flex items-start gap-4 mb-5">
                   <div className="w-10 h-10 shrink-0 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
                     <span className="material-symbols-outlined text-[22px]">info</span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-bold text-primary mb-1">Complete seu perfil</h3>
-                    <p className="text-sm text-on-surface-variant leading-relaxed">
+                    <h3 className="text-sm font-bold text-primary dark:text-white mb-1">Complete seu perfil</h3>
+                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
                       Preencha os campos obrigatórios para que seu perfil apareça nas buscas e empresas possam te encontrar.
                     </p>
                   </div>
@@ -412,7 +383,7 @@ export default function ProfessionalProfilePage() {
                 {/* Progress bar */}
                 <div className="mb-4">
                   <div className="flex justify-between text-xs font-bold mb-2">
-                    <span className="text-on-surface-variant">{completion.completed}/{completion.total} campos preenchidos</span>
+                    <span className="text-muted-foreground dark:text-gray-300">{completion.completed}/{completion.total} campos preenchidos</span>
                     <span className="text-secondary">{completion.percent}%</span>
                   </div>
                   <div className="h-2 bg-surface-container rounded-full overflow-hidden">
@@ -426,7 +397,7 @@ export default function ProfessionalProfilePage() {
                 {/* Checklist */}
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   {completion.fields.map((field) => (
-                    <div key={field.label} className={`flex items-center gap-2 text-xs ${field.done ? "text-emerald-600" : "text-on-surface-variant/50"}`}>
+                    <div key={field.label} className={`flex items-center gap-2 text-xs ${field.done ? "text-emerald-600" : "text-muted-foreground/50 dark:text-gray-400"}`}>
                       <span className="material-symbols-outlined text-[16px]">
                         {field.done ? "check_circle" : "radio_button_unchecked"}
                       </span>
@@ -445,15 +416,15 @@ export default function ProfessionalProfilePage() {
             )}
 
             {/* Projetos Finalizados */}
-            <div className="bg-white rounded-3xl p-8 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-black/[0.04]">
-              <h3 className="font-headline text-lg text-primary font-bold mb-2">Projetos Finalizados</h3>
-              <p className="text-sm text-on-surface-variant mb-6">{completedProjects.length} projeto(s)</p>
+            <div className="bg-card rounded-3xl p-8 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-border dark:shadow-none">
+              <h3 className="font-headline text-lg text-primary dark:text-white font-bold mb-2">Projetos Finalizados</h3>
+              <p className="text-sm text-muted-foreground dark:text-gray-300 mb-6">{completedProjects.length} projeto(s)</p>
 
               {completedProjects.length === 0 ? (
                 <div className="flex flex-col items-center py-8 text-center">
-                  <span className="material-symbols-outlined text-[48px] text-on-surface-variant/20 mb-3">work_history</span>
-                  <p className="text-sm text-on-surface-variant">Nenhum projeto finalizado ainda.</p>
-                  <p className="text-xs text-on-surface-variant/60 mt-1">Projetos concluídos e aprovados aparecerão aqui.</p>
+                  <span className="material-symbols-outlined text-[48px] text-muted-foreground/20 dark:text-gray-400 mb-3">work_history</span>
+                  <p className="text-sm text-muted-foreground dark:text-gray-300">Nenhum projeto finalizado ainda.</p>
+                  <p className="text-xs text-muted-foreground/60 dark:text-gray-400 mt-1">Projetos concluídos e aprovados aparecerão aqui.</p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
@@ -461,8 +432,8 @@ export default function ProfessionalProfilePage() {
                     <div key={project.proposalId} className="bg-emerald-50/40 border border-emerald-200/40 rounded-2xl p-5">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <h4 className="text-sm font-bold text-primary">{project.otherPartyName}</h4>
-                          <p className="text-xs text-on-surface-variant mt-0.5">
+                          <h4 className="text-sm font-bold text-primary dark:text-white">{project.otherPartyName}</h4>
+                          <p className="text-xs text-muted-foreground dark:text-gray-300 mt-0.5">
                             Concluído em {new Date(project.completedAt).toLocaleDateString("pt-BR")}
                           </p>
                         </div>
@@ -481,15 +452,15 @@ export default function ProfessionalProfilePage() {
             </div>
 
             {/* Propostas Recebidas */}
-            <div className="bg-white rounded-3xl p-8 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-black/[0.04]">
-              <h3 className="font-headline text-lg text-primary font-bold mb-2">Propostas Recebidas</h3>
-              <p className="text-sm text-on-surface-variant mb-6">{proposals.length} proposta(s) no total</p>
+            <div className="bg-card rounded-3xl p-8 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-border dark:shadow-none">
+              <h3 className="font-headline text-lg text-primary dark:text-white font-bold mb-2">Propostas Recebidas</h3>
+              <p className="text-sm text-muted-foreground dark:text-gray-300 mb-6">{proposals.length} proposta(s) no total</p>
 
               {proposals.length === 0 ? (
                 <div className="flex flex-col items-center py-8 text-center">
-                  <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30 mb-3">inbox</span>
-                  <p className="text-sm text-on-surface-variant">Nenhuma proposta recebida ainda.</p>
-                  <p className="text-xs text-on-surface-variant/60 mt-1">Complete seu perfil para aparecer nas buscas.</p>
+                  <span className="material-symbols-outlined text-[48px] text-muted-foreground/30 dark:text-gray-400 mb-3">inbox</span>
+                  <p className="text-sm text-muted-foreground dark:text-gray-300">Nenhuma proposta recebida ainda.</p>
+                  <p className="text-xs text-muted-foreground/60 dark:text-gray-400 mt-1">Complete seu perfil para aparecer nas buscas.</p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
@@ -497,12 +468,12 @@ export default function ProfessionalProfilePage() {
                   {pendingProposals.map((p) => (
                     <div key={p.id} className="bg-amber-50/50 border border-amber-200/50 rounded-2xl p-5">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="text-base font-bold text-primary">R$ {Number(p.price).toFixed(2)}</span>
+                        <span className="text-base font-bold text-primary dark:text-white">R$ {Number(p.price).toFixed(2)}</span>
                         <span className="text-[10px] uppercase font-bold px-2.5 py-1 rounded-full tracking-wider bg-amber-100 text-amber-700 border border-amber-200">
                           Pendente
                         </span>
                       </div>
-                      <p className="text-sm text-on-surface-variant line-clamp-2 mb-4">{p.message}</p>
+                      <p className="text-sm text-muted-foreground dark:text-gray-300 line-clamp-2 mb-4">{p.message}</p>
                       <div className="grid grid-cols-2 gap-3">
                         <button onClick={() => respondProposal(p.id, "accept")} className="bg-secondary hover:bg-secondary/90 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-colors">
                           <span className="material-symbols-outlined text-[16px]">check</span> Aceitar
@@ -515,14 +486,14 @@ export default function ProfessionalProfilePage() {
                   ))}
                   {/* Other proposals */}
                   {otherProposals.map((p) => (
-                    <div key={p.id} className="bg-surface-container-lowest border border-black/[0.06] rounded-2xl p-5">
+                    <div key={p.id} className="bg-surface-container-low dark:bg-card/40 border border-black/[0.06] rounded-2xl p-5">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="text-base font-bold text-primary">R$ {Number(p.price).toFixed(2)}</span>
+                        <span className="text-base font-bold text-primary dark:text-white">R$ {Number(p.price).toFixed(2)}</span>
                         <span className={`text-[10px] uppercase font-bold px-2.5 py-1 rounded-full tracking-wider ${
                           p.status === "ACCEPTED" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-gray-100 text-gray-500 border border-gray-200"
                         }`}>{p.status === "ACCEPTED" ? "Aceita" : p.status === "REJECTED" ? "Recusada" : p.status}</span>
                       </div>
-                      <p className="text-sm text-on-surface-variant line-clamp-2">{p.message}</p>
+                      <p className="text-sm text-muted-foreground dark:text-gray-300 line-clamp-2">{p.message}</p>
                       {p.status === "ACCEPTED" && (
                         <Link href="/app/messages" className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-secondary hover:underline">
                           <span className="material-symbols-outlined text-[16px]">chat</span> Abrir Chat
@@ -543,55 +514,39 @@ export default function ProfessionalProfilePage() {
           ═══════════════════════════════════════════ */}
       {showEditModal && (
         <div
-          className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-4 backdrop-blur-[2px]"
+          className="fixed inset-0 z-[60] bg-black/40 flex items-start justify-center pt-16 pb-10 px-4 backdrop-blur-[2px] overflow-y-auto"
           onClick={() => setShowEditModal(false)}
         >
           <div
-            className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl border border-black/[0.05] relative max-h-[90vh] overflow-y-auto"
+            className="bg-card rounded-3xl p-8 max-w-lg w-full shadow-2xl border border-border dark:shadow-none relative max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-headline text-xl text-primary font-bold">Editar Perfil</h3>
-              <button onClick={() => setShowEditModal(false)} className="text-on-surface-variant hover:text-error transition-colors">
+              <h3 className="font-headline text-xl text-primary dark:text-white font-bold">Editar Perfil</h3>
+              <button onClick={() => setShowEditModal(false)} className="text-muted-foreground dark:text-gray-300 hover:text-error transition-colors">
                 <span className="material-symbols-outlined text-[24px]">close</span>
               </button>
             </div>
 
-            {/* Photo upload in modal */}
             <div className="flex justify-center mb-6">
-              <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                {profilePhoto ? (
-                  <div className="w-20 h-20 rounded-full overflow-hidden border-[3px] border-surface-container shadow-md">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={profilePhoto} alt="Perfil" className="w-full h-full object-cover" />
-                  </div>
-                ) : (
-                  <Avatar className="w-20 h-20 shadow-md border-[3px] border-surface-container">
-                    <AvatarFallback className="bg-primary text-white text-2xl font-bold">
-                      {avatarInitial}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-[20px] opacity-0 group-hover:opacity-100 transition-opacity">
-                    photo_camera
-                  </span>
-                </div>
-              </div>
+              <Avatar className="w-20 h-20 shadow-md border-[3px] border-surface-container">
+                <AvatarFallback className="bg-primary text-white text-2xl font-bold">
+                  {avatarInitial}
+                </AvatarFallback>
+              </Avatar>
             </div>
-            <p className="text-xs text-center text-on-surface-variant/60 mb-6">Clique na foto para alterar</p>
 
-            <form onSubmit={createOrUpdate} className="space-y-5 mb-8">
+            <form id="profileForm" onSubmit={createOrUpdate} className="space-y-5 mb-8">
               {/* Name (Required) */}
               <div>
-                <label className="mb-1.5 block text-sm font-bold text-on-surface">
+                <label className="mb-1.5 block text-sm font-bold text-foreground dark:text-white">
                   Nome <span className="text-error">*</span>
                 </label>
                 <input
                   value={profileName}
                   onChange={(e) => { setProfileName(e.target.value); setValidationErrors((v) => ({ ...v, name: false })); }}
                   maxLength={100}
-                  className={`w-full rounded-xl border ${validationErrors.name ? "border-error" : "border-outline-variant/40"} bg-white px-4 py-3 text-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary`}
+                  className={`w-full rounded-xl border ${validationErrors.name ? "border-error" : "border-outline-variant/40"} bg-card px-4 py-3 text-sm text-foreground dark:text-white outline-none transition-all placeholder:text-muted-foreground/40 dark:text-gray-400 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary`}
                   placeholder="Seu nome completo"
                 />
                 {validationErrors.name && <p className="text-xs text-error mt-1">Campo obrigatório</p>}
@@ -599,14 +554,14 @@ export default function ProfessionalProfilePage() {
 
               {/* Headline (Required) */}
               <div>
-                <label className="mb-1.5 block text-sm font-bold text-on-surface">
+                <label className="mb-1.5 block text-sm font-bold text-foreground dark:text-white">
                   Cargo / Função <span className="text-error">*</span>
                 </label>
                 <input
                   value={headline}
                   onChange={(e) => { setHeadline(e.target.value); setValidationErrors((v) => ({ ...v, headline: false })); }}
                   maxLength={150}
-                  className={`w-full rounded-xl border ${validationErrors.headline ? "border-error" : "border-outline-variant/40"} bg-white px-4 py-3 text-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary`}
+                  className={`w-full rounded-xl border ${validationErrors.headline ? "border-error" : "border-outline-variant/40"} bg-card px-4 py-3 text-sm text-foreground dark:text-white outline-none transition-all placeholder:text-muted-foreground/40 dark:text-gray-400 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary`}
                   placeholder="Ex.: Desenvolvedor Full Stack"
                 />
                 {validationErrors.headline && <p className="text-xs text-error mt-1">Campo obrigatório</p>}
@@ -614,14 +569,14 @@ export default function ProfessionalProfilePage() {
 
               {/* Description (Required) */}
               <div>
-                <label className="mb-1.5 block text-sm font-bold text-on-surface">
+                <label className="mb-1.5 block text-sm font-bold text-foreground dark:text-white">
                   Descrição <span className="text-error">*</span>
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => { setDescription(e.target.value); setValidationErrors((v) => ({ ...v, description: false })); }}
                   rows={4}
-                  className={`w-full rounded-xl border ${validationErrors.description ? "border-error" : "border-outline-variant/40"} bg-white px-4 py-3 text-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary`}
+                  className={`w-full rounded-xl border ${validationErrors.description ? "border-error" : "border-outline-variant/40"} bg-card px-4 py-3 text-sm text-foreground dark:text-white outline-none transition-all placeholder:text-muted-foreground/40 dark:text-gray-400 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary`}
                   placeholder="Fale sobre você, experiência e interesses..."
                 />
                 {validationErrors.description && <p className="text-xs text-error mt-1">Campo obrigatório</p>}
@@ -629,34 +584,27 @@ export default function ProfessionalProfilePage() {
 
               {/* Contact Email (Required) */}
               <div>
-                <label className="mb-1.5 block text-sm font-bold text-on-surface">
+                <label className="mb-1.5 block text-sm font-bold text-foreground dark:text-white">
                   E-mail de Contato <span className="text-error">*</span>
                 </label>
                 <input
                   type="email"
                   value={contactEmail}
                   onChange={(e) => { setContactEmail(e.target.value); setValidationErrors((v) => ({ ...v, contactEmail: false })); }}
-                  className={`w-full rounded-xl border ${validationErrors.contactEmail ? "border-error" : "border-outline-variant/40"} bg-white px-4 py-3 text-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary`}
+                  className={`w-full rounded-xl border ${validationErrors.contactEmail ? "border-error" : "border-outline-variant/40"} bg-card px-4 py-3 text-sm text-foreground dark:text-white outline-none transition-all placeholder:text-muted-foreground/40 dark:text-gray-400 hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary`}
                   placeholder="seuemail@gmail.com"
                 />
                 {validationErrors.contactEmail && <p className="text-xs text-error mt-1">Campo obrigatório</p>}
               </div>
 
-              <button
-                type="submit"
-                disabled={saving}
-                className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:bg-primary/90 disabled:opacity-50"
-              >
-                {saving ? "Salvando..." : profile ? "Salvar Alterações" : "Criar Perfil"}
-              </button>
             </form>
 
             {/* Skills Manager — Free text tags */}
             <div className="border-t border-black/[0.06] pt-6">
-              <h4 className="font-headline text-base text-primary font-bold mb-2">
+              <h4 className="font-headline text-base text-primary dark:text-white font-bold mb-2">
                 Gerenciar Habilidades <span className="text-error">*</span>
               </h4>
-              <p className="text-xs text-on-surface-variant/60 mb-3">
+              <p className="text-xs text-muted-foreground/60 dark:text-gray-400 mb-3">
                 Digite uma habilidade e pressione <kbd className="px-1.5 py-0.5 bg-surface-container rounded text-[10px] font-mono">Enter</kbd> para adicionar.
               </p>
               {validationErrors.skills && (
@@ -686,14 +634,14 @@ export default function ProfessionalProfilePage() {
               )}
 
               {/* Input */}
-              <div className="flex items-center gap-2 rounded-xl bg-[#f0f2f5] px-3 py-2.5">
-                <span className="material-symbols-outlined text-[18px] text-on-surface-variant/50">add</span>
+              <div className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2.5">
+                <span className="material-symbols-outlined text-[18px] text-muted-foreground/50 dark:text-gray-400">add</span>
                 <input
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={handleSkillKeyDown}
                   placeholder="Ex.: React, TypeScript, Figma..."
-                  className="w-full bg-transparent text-sm text-on-surface outline-none placeholder:text-on-surface-variant/40"
+                  className="w-full bg-transparent text-sm text-foreground dark:text-white outline-none placeholder:text-muted-foreground/40 dark:text-gray-400"
                 />
                 {skillInput.trim() && (
                   <button
@@ -706,6 +654,15 @@ export default function ProfessionalProfilePage() {
                 )}
               </div>
             </div>
+
+            <button
+              form="profileForm"
+              type="submit"
+              disabled={saving}
+              className="mt-8 w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:bg-primary/90 disabled:opacity-50"
+            >
+              {saving ? "Salvando..." : profile ? "Salvar Alterações" : "Criar Perfil"}
+            </button>
           </div>
         </div>
       )}
