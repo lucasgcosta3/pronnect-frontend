@@ -35,9 +35,7 @@ export function MainNavbar() {
     if (t) {
       const p = decodeJwtPayload(t);
       if (p) {
-        setDisplayName(
-          p.name || p.fullName || (p.sub ? p.sub.split("@")[0] : null),
-        );
+        setDisplayName(p.name || p.fullName || (p.sub ? p.sub.split("@")[0] : null));
       }
     }
 
@@ -95,6 +93,10 @@ export function MainNavbar() {
     clearToken();
     window.localStorage.removeItem("pronnect-avatar-url");
     setAvatarUrl(null);
+    // Clear local UI state so navbar updates immediately without page reload
+    setRole(null);
+    setDisplayName(null);
+    window.dispatchEvent(new CustomEvent("pronnect-logout"));
     router.push("/");
   }
 
@@ -173,14 +175,16 @@ export function MainNavbar() {
                         href="/app/company/onboarding"
                         className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted font-medium"
                       >
-                        <span className="material-symbols-outlined text-[18px]">person</span> Meu Perfil
+                        <span className="material-symbols-outlined text-[18px]">person</span> Meu
+                        Perfil
                       </Link>
                       <Link
                         onClick={() => setDropdownOpen(false)}
                         href="/app/projects/new"
                         className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted font-medium"
                       >
-                        <span className="material-symbols-outlined text-[18px]">add_circle</span> Criar Projeto
+                        <span className="material-symbols-outlined text-[18px]">add_circle</span>{" "}
+                        Criar Projeto
                       </Link>
                     </>
                   )}
@@ -190,7 +194,8 @@ export function MainNavbar() {
                       href="/app/professional/onboarding"
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted font-medium"
                     >
-                      <span className="material-symbols-outlined text-[18px]">person</span> Meu Perfil
+                      <span className="material-symbols-outlined text-[18px]">person</span> Meu
+                      Perfil
                     </Link>
                   )}
                   <Link
