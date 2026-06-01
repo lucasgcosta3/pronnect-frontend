@@ -1,10 +1,13 @@
+"use client";
+
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { MainNavbar } from "@/components/MainNavbar";
 import { PronnectLogo } from "@/components/PronnectLogo";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LinkedInIcon, InstagramIcon, YouTubeIcon } from "@/components/SocialIcons";
 import { cn } from "@/lib/utils";
 
@@ -25,32 +28,72 @@ const storyColumns = [
 
 const teamMembers = [
   {
-    name: "Lucas Ferreira",
+    name: "Bruno Ricardo",
     role: "CEO",
     desc: "Líder visionário com experiência no ecossistema tech de Recife.",
-    initials: "LF",
+    initials: "BR",
+    image: "/bruno.jpg",
   },
   {
-    name: "Mariana Costa",
+    name: "Evandro Júnior",
     role: "COO",
     desc: "Especialista em operações e processos de plataformas digitais.",
-    initials: "MC",
+    initials: "EJ",
+    image: "/evandro.jpg",
   },
   {
-    name: "Rafael Oliveira",
+    name: "Lucas Costa",
     role: "CTO",
     desc: "Engenheiro de software com foco em arquitetura e escalabilidade.",
-    initials: "RO",
+    initials: "LC",
+    image: "/lucas.png",
   },
   {
-    name: "Ana Beatriz Lima",
+    name: "Wendell Lins",
+    role: "CPO",
+    desc: "Responsável por guiar a estratégia de produto e a visão da plataforma.",
+    initials: "WL",
+    image: "/wendell.jpeg",
+  },
+  {
+    name: "Jhonata Muniz",
+    role: "QA Lead",
+    desc: "Especialista em qualidade e processos de desenvolvimento.",
+    initials: "JM",
+    image: "jonny.jpg",
+  },
+  {
+    name: "Davi Lucas",
     role: "Head de Design",
-    desc: "UX/UI designer apaixonada por criar experiências excepcionais.",
-    initials: "AL",
+    desc: "UX/UI designer apaixonado por criar experiências excepcionais.",
+    initials: "DL",
+    image: "davi.jpg",
   },
 ] as const;
 
 export default function AboutPage() {
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  const scrollPrev = () => {
+    if (carouselRef.current) {
+      const cardWidth = carouselRef.current.firstElementChild?.clientWidth || 280;
+      carouselRef.current.scrollBy({
+        left: -(cardWidth + 24), // card width + gap (24px)
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const scrollNext = () => {
+    if (carouselRef.current) {
+      const cardWidth = carouselRef.current.firstElementChild?.clientWidth || 280;
+      carouselRef.current.scrollBy({
+        left: cardWidth + 24, // card width + gap (24px)
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
     <>
       <MainNavbar />
@@ -77,8 +120,8 @@ export default function AboutPage() {
               Sobre Nós
             </h1>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-white/75 md:text-lg">
-              Nossa missão é conectar empresas a profissionais de tecnologia
-              excepcionais, com segurança, transparência e eficiência.
+              Nossa missão é conectar empresas a profissionais de tecnologia excepcionais, com
+              segurança, transparência e eficiência.
             </p>
           </div>
         </div>
@@ -95,19 +138,17 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-0 md:divide-x md:divide-border/40">
             {storyColumns.map((col, index) => (
-              <div 
-                key={col.title} 
+              <div
+                key={col.title}
                 className={cn(
-                  "flex flex-col", 
-                  index === 0 ? "md:pr-8" : index === 2 ? "md:pl-8" : "md:px-8"
+                  "flex flex-col",
+                  index === 0 ? "md:pr-8" : index === 2 ? "md:pl-8" : "md:px-8",
                 )}
               >
                 <h3 className="mb-4 font-body text-lg font-bold text-primary dark:text-white">
                   {col.title}
                 </h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {col.text}
-                </p>
+                <p className="text-sm leading-relaxed text-muted-foreground">{col.text}</p>
               </div>
             ))}
           </div>
@@ -115,58 +156,95 @@ export default function AboutPage() {
       </section>
 
       {/* ─── MEET OUR TEAM ─── */}
-      <section className="border-b border-border/40 bg-muted/50 dark:bg-background px-6 py-20 md:px-10 md:py-28">
+      <section className="border-b border-border/40 bg-muted/50 dark:bg-background px-6 py-20 md:px-10 md:py-28 overflow-hidden">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-14 text-center">
-            <span className="mb-3 block text-[11px] font-bold uppercase tracking-[0.2em] text-accent">
-              Quem faz acontecer
-            </span>
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary dark:text-white md:text-4xl lg:text-[2.5rem]">
-              Nosso Time
-            </h2>
+          <div className="mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div>
+              <span className="mb-3 block text-[11px] font-bold uppercase tracking-[0.2em] text-accent">
+                Quem faz acontecer
+              </span>
+              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary dark:text-white md:text-4xl lg:text-[2.5rem]">
+                Nosso Time
+              </h2>
+            </div>
+            {/* Carousel navigation buttons */}
+            <div className="flex gap-2">
+              <button
+                onClick={scrollPrev}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-primary/75 dark:text-white/75 transition-all hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95 shadow-sm"
+                aria-label="Anterior"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={scrollNext}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-primary/75 dark:text-white/75 transition-all hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95 shadow-sm"
+                aria-label="Próximo"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-            {teamMembers.map((member) => (
-              <div
-                key={member.name}
-                className="flex flex-col items-center rounded-2xl border border-border bg-card p-8 text-center shadow-sm transition-shadow hover:shadow-md dark:shadow-none"
-              >
-                <div className="mb-5">
-                  <Avatar className="h-24 w-24 border-[3px] border-border shadow-md dark:border-border">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
-                      {member.initials}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-                <h3 className="font-body text-base font-bold text-primary dark:text-white">
-                  {member.name}
-                </h3>
-                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-accent">
-                  {member.role}
-                </p>
-                <p className="mb-5 flex-1 text-sm leading-relaxed text-muted-foreground">
-                  {member.desc}
-                </p>
-                <Link
-                  href="#"
-                  className="mb-4 text-sm font-semibold text-accent hover:underline"
+          <div className="relative">
+            <div
+              ref={carouselRef}
+              className="no-scrollbar flex flex-row gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4"
+            >
+              {teamMembers.map((member) => (
+                <div
+                  key={member.name}
+                  className="w-[85vw] sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] shrink-0 snap-start flex flex-col items-center rounded-2xl border border-border bg-card p-8 text-center shadow-sm transition-all duration-300 hover:shadow-md dark:shadow-none hover:border-accent/40"
                 >
-                  Saiba Mais
-                </Link>
-                <div className="flex gap-2">
-                  <a
-                    href="#"
-                    aria-label={`LinkedIn de ${member.name}`}
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-primary/70 transition-colors hover:bg-primary hover:text-primary-foreground"
-                  >
-                    <LinkedInIcon size={14} />
-                  </a>
+                  <div className="mb-5">
+                    <Avatar className="h-24 w-24 border-[3px] border-border shadow-md dark:border-border">
+                      {member.image && (
+                        <AvatarImage
+                          src={member.image}
+                          alt={`Foto de ${member.name}`}
+                          className="object-cover"
+                        />
+                      )}
+                      <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
+                        {member.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <h3 className="font-body text-base font-bold text-primary dark:text-white">
+                    {member.name}
+                  </h3>
+                  <p className="mb-3 text-xs font-bold uppercase tracking-wider text-accent">
+                    {member.role}
+                  </p>
+                  <p className="mb-5 flex-1 text-sm leading-relaxed text-muted-foreground min-h-[60px]">
+                    {member.desc}
+                  </p>
+                  <Link href="#" className="mb-4 text-sm font-semibold text-accent hover:underline">
+                    Saiba Mais
+                  </Link>
+                  <div className="flex gap-2">
+                    <a
+                      href="#"
+                      aria-label={`LinkedIn de ${member.name}`}
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-primary/70 transition-colors hover:bg-primary hover:text-primary-foreground"
+                    >
+                      <LinkedInIcon size={14} />
+                    </a>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
+        <style>{`
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+          .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        `}</style>
       </section>
 
       {/* ─── FOOTER ─── */}
@@ -176,8 +254,8 @@ export default function AboutPage() {
             <div className="lg:col-span-1">
               <PronnectLogo inverted />
               <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/55">
-                Marketplace para talento de tecnologia e clientes que precisam
-                de execução com qualidade e segurança.
+                Marketplace para talento de tecnologia e clientes que precisam de execução com
+                qualidade e segurança.
               </p>
             </div>
             <div>
@@ -255,10 +333,7 @@ export default function AboutPage() {
           </div>
           <Separator className="my-12 bg-white/10" />
           <div className="flex flex-col items-center justify-between gap-4 text-xs text-white/45 md:flex-row">
-            <p>
-              © {new Date().getFullYear()} Pronnect. Todos os direitos
-              reservados.
-            </p>
+            <p>© {new Date().getFullYear()} Pronnect. Todos os direitos reservados.</p>
             <div className="flex flex-wrap justify-center gap-6">
               <Link href="#" className="hover:text-white/80">
                 Privacidade

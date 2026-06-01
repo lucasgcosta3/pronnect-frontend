@@ -1,11 +1,13 @@
 "use client";
 
 import type { ProfessionalProfileResponse, SpringPage } from "@/lib/types";
-import { ApiError, api } from "@/lib/api";
+import { ApiError, api, resolveBackendUrl } from "@/lib/api";
+import { getAccountIdFromToken } from "@/lib/auth";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ReviewBadge } from "@/components/ReviewBadge";
 export default function ProfessionalsSearchPage() {
   const [mounted, setMounted] = useState(false);
   const [text, setText] = useState("");
@@ -26,7 +28,7 @@ export default function ProfessionalsSearchPage() {
     if (searchText.trim()) params.set("text", searchText.trim());
     try {
       const res = await api<SpringPage<ProfessionalProfileResponse>>(
-        `/professionals?${params.toString()}`
+        `/professionals?${params.toString()}`,
       );
       setData(res);
     } catch (e) {
@@ -36,6 +38,8 @@ export default function ProfessionalsSearchPage() {
       setLoading(false);
     }
   }, []);
+
+  const currentAccountId = getAccountIdFromToken();
 
   useEffect(() => {
     setMounted(true);
@@ -62,7 +66,7 @@ export default function ProfessionalsSearchPage() {
   useEffect(() => {
     if (!mounted) return;
     load(text, page);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   function onSearch(e: FormEvent) {
@@ -84,7 +88,8 @@ export default function ProfessionalsSearchPage() {
           Encontre o especialista ideal para seu projeto
         </h1>
         <p className="text-lg text-muted-foreground dark:text-gray-300 md:text-xl max-w-2xl">
-          Conectamos as mentes mais brilhantes do mercado digital para transformar suas ideias em produtos de alto nível.
+          Conectamos as mentes mais brilhantes do mercado digital para transformar suas ideias em
+          produtos de alto nível.
         </p>
       </div>
 
@@ -101,7 +106,7 @@ export default function ProfessionalsSearchPage() {
             className="w-full bg-transparent py-3 text-foreground outline-none placeholder:text-muted-foreground/60"
           />
         </div>
-        
+
         <div className="flex items-center gap-2 px-2 pb-2 sm:pb-0">
           <button
             type="button"
@@ -110,7 +115,7 @@ export default function ProfessionalsSearchPage() {
             <SlidersHorizontal size={18} />
             Filtros
           </button>
-          
+
           <button
             type="submit"
             className="flex h-[46px] w-[46px] flex-shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-all duration-200 hover:scale-105 hover:bg-primary/90 active:scale-95"
@@ -151,13 +156,19 @@ export default function ProfessionalsSearchPage() {
                   >
                     <div className="mb-4 flex items-start justify-between">
                       <Avatar className="h-16 w-16 shadow-sm">
-                        <AvatarFallback className="bg-primary text-primary-foreground text-xl font-bold">
-                          {initial}
-                        </AvatarFallback>
+                        {p.avatarUrl ? (
+                          <AvatarImage src={resolveBackendUrl(p.avatarUrl) || ""} alt={name} />
+                        ) : (
+                          <AvatarFallback className="bg-primary text-primary-foreground text-xl font-bold">
+                            {initial}
+                          </AvatarFallback>
+                        )}
                       </Avatar>
                       {p.profileCompleted && (
                         <span className="flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
-                          <span className="material-symbols-outlined text-[12px]">check_circle</span>
+                          <span className="material-symbols-outlined text-[12px]">
+                            check_circle
+                          </span>
                           Ativo
                         </span>
                       )}
@@ -171,13 +182,17 @@ export default function ProfessionalsSearchPage() {
                         {p.headline || "Profissional"}
                       </h3>
 
+                      <div className="mb-3">
+                        <ReviewBadge accountId={p.accountId} />
+                      </div>
+
                       {/* Description preview */}
                       {p.description && (
                         <p className="text-xs text-muted-foreground dark:text-gray-300 line-clamp-2 mb-3 leading-relaxed">
                           {p.description}
                         </p>
                       )}
-                      
+
                       {/* Skills Grid */}
                       <div className="mb-4 flex flex-wrap gap-1.5">
                         {p.skills.length > 0 ? (
@@ -197,17 +212,23 @@ export default function ProfessionalsSearchPage() {
                             )}
                           </>
                         ) : (
-                          <span className="text-xs text-muted-foreground dark:text-gray-300 italic">Nenhuma habilidade listada</span>
+                          <span className="text-xs text-muted-foreground dark:text-gray-300 italic">
+                            Nenhuma habilidade listada
+                          </span>
                         )}
                       </div>
                     </div>
 
                     {/* Ver Perfil Button */}
                     <Link
-                      href={`/app/professionals/${p.id}`}
+                      href={
+                        p.accountId === currentAccountId
+                          ? "/app/professional/onboarding"
+                          : `/app/professionals/${p.id}`
+                      }
                       className="mt-2 block w-full rounded-xl bg-primary py-3 text-center text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
                     >
-                      Ver Perfil
+                      {p.accountId === currentAccountId ? "Meu Perfil" : "Ver Perfil"}
                     </Link>
                   </li>
                 );
@@ -224,8 +245,8 @@ export default function ProfessionalsSearchPage() {
                 Anterior
               </button>
               <span className="text-sm font-medium text-muted-foreground dark:text-gray-300">
-                Página {data.number + 1} de {Math.max(1, data.totalPages)} (
-                {data.totalElements} perfis)
+                Página {data.number + 1} de {Math.max(1, data.totalPages)} ({data.totalElements}{" "}
+                perfis)
               </span>
               <button
                 type="button"

@@ -47,3 +47,9 @@ export function getRoleFromToken(): AccountRole | null {
   }
   return null;
 }
+
+export function getAccountIdFromToken(): string | null {
+  const t = getToken();
+  if (!t) return null;
+  return decodeJwtPayload(t)?.accountId || null;
+}

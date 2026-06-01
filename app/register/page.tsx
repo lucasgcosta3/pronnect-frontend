@@ -7,20 +7,50 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
+import { formatCpf, formatCnpj, isValidCpf, isValidCnpj } from "@/lib/validators";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<AccountRole>("PROFESSIONAL");
+  const [cpf, setCpf] = useState("");
+  const [cnpj, setCnpj] = useState("");
+  const [personType, setPersonType] = useState<"PF" | "PJ">("PF");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+
+    if (role === "PROFESSIONAL") {
+      if (!isValidCpf(cpf)) {
+        toast.error("CPF inválido.");
+        return;
+      }
+    } else if (role === "COMPANY") {
+      if (personType === "PF" && !isValidCpf(cpf)) {
+        toast.error("CPF inválido.");
+        return;
+      }
+      if (personType === "PJ" && !isValidCnpj(cnpj)) {
+        toast.error("CNPJ inválido.");
+        return;
+      }
+    }
+
     setLoading(true);
     try {
-      const body: RegisterAccountRequest = { name, email, password, role };
+      const body: RegisterAccountRequest = { 
+        name, 
+        email, 
+        password, 
+        role,
+        cpf: role === "PROFESSIONAL" || (role === "COMPANY" && personType === "PF") ? cpf : undefined,
+        cnpj: role === "COMPANY" && personType === "PJ" ? cnpj : undefined,
+        personType: role === "COMPANY" ? personType : undefined
+      };
       await api<AccountResponse>("/auth/register", {
         method: "POST",
         json: body,
@@ -86,21 +116,32 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* Senha */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground/80">
                 Senha (mín. 6 caracteres)
               </label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                autoComplete="new-password"
-                placeholder="Insira sua senha..."
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/40 hover:border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  minLength={6}
+                  autoComplete="new-password"
+                  placeholder="Insira sua senha..."
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-card px-4 py-3 pr-11 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/40 hover:border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
             </div>
 
             {/* Tipo de conta Select */}
@@ -111,7 +152,10 @@ export default function RegisterPage() {
               <div className="relative">
                 <select
                   value={role}
-                  onChange={(e) => setRole(e.target.value as AccountRole)}
+                  onChange={(e) => {
+                    setRole(e.target.value as AccountRole);
+                    if (e.target.value === "COMPANY") setPersonType("PF");
+                  }}
                   className="w-full appearance-none rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-all hover:border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                 >
                   <option value="PROFESSIONAL">Sou Profissional</option>
@@ -124,6 +168,74 @@ export default function RegisterPage() {
                 </div>
               </div>
             </div>
+
+            {/* PF / PJ Toggle (Somente para COMPANY) */}
+            {role === "COMPANY" && (
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-sm font-medium text-foreground/80">
+                  Tipo de Pessoa
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="personType"
+                      value="PF"
+                      checked={personType === "PF"}
+                      onChange={() => setPersonType("PF")}
+                      className="accent-primary"
+                    />
+                    <span className="text-sm">Pessoa Física</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="personType"
+                      value="PJ"
+                      checked={personType === "PJ"}
+                      onChange={() => setPersonType("PJ")}
+                      className="accent-primary"
+                    />
+                    <span className="text-sm">Pessoa Jurídica</span>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {/* CPF / CNPJ */}
+            {(role === "PROFESSIONAL" || (role === "COMPANY" && personType === "PF")) && (
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-foreground/80">
+                  CPF
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="000.000.000-00"
+                  value={cpf}
+                  onChange={(e) => setCpf(formatCpf(e.target.value))}
+                  maxLength={14}
+                  className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/40 hover:border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary"
+                />
+              </div>
+            )}
+
+            {role === "COMPANY" && personType === "PJ" && (
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-foreground/80">
+                  CNPJ
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="00.000.000/0000-00"
+                  value={cnpj}
+                  onChange={(e) => setCnpj(formatCnpj(e.target.value))}
+                  maxLength={18}
+                  className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/40 hover:border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary"
+                />
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
