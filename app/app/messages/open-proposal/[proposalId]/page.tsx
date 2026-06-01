@@ -14,10 +14,11 @@ export default function OpenProposalConversationPage() {
   useEffect(() => {
     (async () => {
       try {
-        const c = await api<ConversationResponse>(
-          `/conversations/proposal/${proposalId}`
-        );
-        router.replace(`/app/messages/${c.id}`);
+        const c = await api<ConversationResponse>(`/conversations/proposal/${proposalId}`);
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem("pronnect-active-conversation-id", c.id);
+        }
+        router.replace("/app/messages");
       } catch (e) {
         if (e instanceof ApiError) setError(e.message);
         else setError("Não foi possível abrir a conversa.");
@@ -29,7 +30,5 @@ export default function OpenProposalConversationPage() {
     return <p className="text-error">{error}</p>;
   }
 
-  return (
-    <p className="text-on-surface-variant">Abrindo conversa…</p>
-  );
+  return <p className="text-on-surface-variant">Abrindo conversa…</p>;
 }
