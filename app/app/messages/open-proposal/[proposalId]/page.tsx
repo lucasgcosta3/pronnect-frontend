@@ -17,7 +17,10 @@ export default function OpenProposalConversationPage() {
         const c = await api<ConversationResponse>(
           `/conversations/proposal/${proposalId}`
         );
-        router.replace(`/app/messages/${c.id}`);
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem("pronnect-active-conversation-id", c.id);
+        }
+        router.replace("/app/messages");
       } catch (e) {
         if (e instanceof ApiError) setError(e.message);
         else setError("Não foi possível abrir a conversa.");

@@ -153,6 +153,14 @@ export default function MessagesPage() {
 
   useEffect(() => {
     loadConversations();
+
+    if (typeof window !== "undefined") {
+      const storedId = window.sessionStorage.getItem("pronnect-active-conversation-id");
+      if (storedId) {
+        setActiveId(storedId);
+        window.sessionStorage.removeItem("pronnect-active-conversation-id");
+      }
+    }
   }, [loadConversations]);
 
   useEffect(() => {
