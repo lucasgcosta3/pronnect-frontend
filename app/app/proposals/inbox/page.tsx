@@ -17,7 +17,7 @@ export default function ProposalsInboxPage() {
     setLoading(true);
     try {
       const list = await api<ProposalResponse[]>("/proposals/me");
-      setItems(list);
+      setItems(list.filter(p => p.status !== "CANCELLED"));
     } catch (e) {
       if (e instanceof ApiError) setError(e.message);
       else setError("Erro ao carregar.");

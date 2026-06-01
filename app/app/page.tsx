@@ -93,43 +93,78 @@ export default function AppDashboardPage() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         {role === "COMPANY" && (
-          <Link
-            href="/app/professionals"
-            className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
-          >
-            <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
-              Buscar profissionais
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Filtre por habilidade ou texto e envie propostas.
-            </p>
-          </Link>
-        )}
-        {role === "COMPANY" && (
-          <Link
-            href="/app/proposals/sent"
-            className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
-          >
-            <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
-              Minhas propostas
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Acompanhe status e cancele se ainda estiver pendente.
-            </p>
-          </Link>
+          <>
+            <Link
+              href="/app/projects/new"
+              className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
+            >
+              <h2 className="font-headline text-lg font-bold text-primary dark:text-white flex items-center gap-2">
+                Criar Projeto <span className="text-secondary text-base">✨ IA</span>
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Publique seu projeto com ajuda de inteligência artificial e receba lances.
+              </p>
+            </Link>
+            <Link
+              href="/app/projects"
+              className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
+            >
+              <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
+                Meus Projetos
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Gerencie seus projetos publicados e veja propostas/lances recebidos.
+              </p>
+            </Link>
+            <Link
+              href="/app/professionals"
+              className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
+            >
+              <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
+                Buscar profissionais
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Filtre por habilidade ou texto e envie propostas de contratação.
+              </p>
+            </Link>
+            <Link
+              href="/app/proposals/sent"
+              className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
+            >
+              <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
+                Minhas propostas
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Acompanhe status e cancele se ainda estiver pendente.
+              </p>
+            </Link>
+          </>
         )}
         {role === "PROFESSIONAL" && (
-          <Link
-            href="/app/proposals/inbox"
-            className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
-          >
-            <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
-              Propostas recebidas
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Aceite ou recuse convites de empresas.
-            </p>
-          </Link>
+          <>
+            <Link
+              href="/app/projects"
+              className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
+            >
+              <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
+                Buscar Projetos
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Explore projetos publicados por empresas e envie seus lances (bids).
+              </p>
+            </Link>
+            <Link
+              href="/app/proposals/inbox"
+              className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
+            >
+              <h2 className="font-headline text-lg font-bold text-primary dark:text-white">
+                Propostas recebidas
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Aceite ou recuse convites diretos de empresas.
+              </p>
+            </Link>
+          </>
         )}
         {(role === "COMPANY" || role === "PROFESSIONAL") && (
           <Link
