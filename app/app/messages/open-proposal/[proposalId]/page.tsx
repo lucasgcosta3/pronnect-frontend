@@ -14,9 +14,7 @@ export default function OpenProposalConversationPage() {
   useEffect(() => {
     (async () => {
       try {
-        const c = await api<ConversationResponse>(
-          `/conversations/proposal/${proposalId}`
-        );
+        const c = await api<ConversationResponse>(`/conversations/proposal/${proposalId}`);
         if (typeof window !== "undefined") {
           window.sessionStorage.setItem("pronnect-active-conversation-id", c.id);
         }
@@ -32,7 +30,5 @@ export default function OpenProposalConversationPage() {
     return <p className="text-error">{error}</p>;
   }
 
-  return (
-    <p className="text-on-surface-variant">Abrindo conversa…</p>
-  );
+  return <p className="text-on-surface-variant">Abrindo conversa…</p>;
 }
