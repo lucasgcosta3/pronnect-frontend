@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { getRoleFromToken } from "@/lib/auth";
 
 import { PronnectLogo } from "@/components/PronnectLogo";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
   CardContent,
@@ -132,8 +132,47 @@ const helpOptions = [
   },
 ] as const;
 
+const faqItems = [
+  {
+    question: "Como funciona o processo de contratação na Pronnect?",
+    answer:
+      "Você publica seu projeto, recebe propostas de profissionais pré-validados, compara perfis e histórico, e fecha com quem faz mais sentido. Todo o processo — contrato, comunicação e pagamento — acontece dentro da plataforma.",
+  },
+  {
+    question: "A Pronnect cobra alguma taxa para publicar projetos?",
+    answer:
+      "Não. A publicação de projetos é totalmente gratuita. A Pronnect cobra uma taxa de serviço apenas quando uma contratação é efetivada, garantindo que você só paga quando encontra o profissional certo.",
+  },
+  {
+    question: "Como funciona o pagamento seguro (escrow)?",
+    answer:
+      "O valor combinado fica retido em uma conta segura (escrow) até que o cliente aprove a entrega. Isso protege tanto o cliente quanto o profissional, reduzindo riscos para ambos os lados.",
+  },
+  {
+    question: "Que tipo de profissionais posso encontrar na plataforma?",
+    answer:
+      "Desenvolvedores, designers, gerentes de projeto, analistas de dados, especialistas em marketing digital e mais. Todos passam por um processo de curadoria antes de serem listados.",
+  },
+  {
+    question: "Posso contratar equipes inteiras ou apenas freelancers individuais?",
+    answer:
+      "Ambos. Você pode contratar profissionais individuais para demandas pontuais ou montar squads completos para projetos mais complexos e de longa duração.",
+  },
+  {
+    question: "O que acontece se houver um problema com a entrega?",
+    answer:
+      "A Pronnect oferece mediação dedicada para resolver divergências. Se o trabalho não atender ao escopo acordado, nosso time de suporte intervém para encontrar a melhor solução.",
+  },
+  {
+    question: "Como a Pronnect garante a qualidade dos profissionais?",
+    answer:
+      "Todos os profissionais passam por verificação de identidade, análise de portfólio e histórico. Além disso, o sistema de avaliações e reputação ajuda a manter um padrão elevado de qualidade.",
+  },
+] as const;
+
 export default function LandingPage() {
   const [role, setRole] = useState<string | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     setRole(getRoleFromToken());
@@ -245,7 +284,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
             {processSteps.map((s) => (
               <div key={s.title} className="flex flex-col">
-                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-primary shadow-sm dark:shadow-lg dark:shadow-primary/15">
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-[1rem] bg-primary shadow-sm dark:shadow-lg dark:shadow-primary/15">
                   <span className="material-symbols-outlined text-2xl text-primary-foreground">
                     {s.icon}
                   </span>
@@ -272,11 +311,68 @@ export default function LandingPage() {
               Confiança
             </span>
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary dark:text-white md:text-4xl lg:text-[2.5rem]">
-              Confiança de quem lidera
+              Quem confia na gente
             </h2>
+            <p className="mt-3 max-w-xl text-muted-foreground">
+              Mais de 50 empresas já utilizam a Pronnect para contratar, 
+              <br />
+              gerenciar e escalar equipes de tecnologia.
+            </p>
           </div>
-          <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch lg:gap-10">
-            <div className="flex flex-col rounded-xl border border-border bg-card p-8 shadow-[0_20px_50px_-24px_rgba(0,32,69,0.25)] md:p-10 lg:p-12 dark:shadow-none">
+
+          {/* ── Logo carousel (static) ── */}
+          <div className="mb-24 flex flex-wrap items-start justify-center gap-10 md:gap-14">
+            {[
+              {
+                src: "/empresas/autocenter.jpeg",
+                nome: "Titan Auto Center",
+                area: "Automotivo",
+              },
+              {
+                src: "/empresas/contabilidade.jpg",
+                nome: "Media Contabilidade",
+                area: "Contabilidade",
+              },
+              {
+                src: "/empresas/evolue.png",
+                nome: "useEvolue",
+                area: "Moda Fitness",
+              },
+              {
+                src: "/empresas/finestampa.jpg",
+                nome: "Finestampas",
+                area: "Moda",
+              },
+            ].map((empresa) => (
+              <div
+                key={empresa.nome}
+                className="flex flex-col items-center"
+              >
+                <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full md:h-32 md:w-32">
+                  <Image
+                    src={empresa.src}
+                    alt={empresa.nome}
+                    fill
+                    className="object-cover"
+                    sizes="256"
+                  />
+                </div>
+
+                <h3 className="mt-4 text-center text-lg font-medium dark:text-white">
+                  {empresa.nome}
+                </h3>
+
+                <p className="mt-1 text-center text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                  {empresa.area}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Testimonial + stats ── */}
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-stretch lg:gap-10">
+            {/* Blockquote card */}
+            <div className="flex flex-col rounded-[2rem] border border-border bg-card p-8 shadow-[0_20px_50px_-24px_rgba(0,32,69,0.25)] md:p-10 lg:p-12 dark:border-border/40 dark:bg-[hsl(228,38%,10%)]">
               <span
                 className="font-headline mb-6 block text-6xl leading-none text-accent md:text-7xl"
                 aria-hidden
@@ -284,61 +380,44 @@ export default function LandingPage() {
                 &ldquo;
               </span>
               <blockquote className="font-headline mb-10 flex-1 text-xl leading-snug text-primary dark:text-white md:text-2xl lg:text-[1.65rem] lg:leading-snug">
-                A Pronnect mudou como fechamos squads externos: menos atrito,
-                mais previsibilidade e visibilidade do que importa.
+                O que mais nos impressionou foi a simplicidade. Encontramos os profissionais certos mais rápido e com muito menos esforço operacional.
               </blockquote>
               <div className="flex items-center gap-4 border-t border-border/60 pt-8">
                 <Avatar
                   size="lg"
                   className="size-14 border-2 border-accent/35"
                 >
+                  <AvatarImage src="/ricardo-salles.png" alt="Ricardo Salles" />
                   <AvatarFallback className="bg-primary text-base font-semibold text-primary-foreground">
                     RS
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-semibold text-primary dark:text-white">Ricardo Salles</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
                     Diretor de Operações, VisionTech
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="grid min-h-[340px] grid-cols-2 grid-rows-2 gap-3 sm:gap-4 md:min-h-[400px] lg:min-h-0">
-              <div className="relative min-h-[160px] overflow-hidden rounded-xl sm:min-h-[180px]">
-                <Image
-                  src="https://picsum.photos/seed/pronnect-trust-a/500/700"
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                />
-              </div>
-              <div className="flex flex-col justify-center rounded-xl bg-accent p-6 text-accent-foreground shadow-inner sm:p-8">
-                <p className="font-headline text-3xl font-bold sm:text-4xl">
+            {/* Stats + CTA column */}
+            <div className="flex flex-col gap-4 lg:w-72">
+              <div className="flex flex-1 flex-col justify-center border-l-2 border-accent/30 pl-6">
+                <p className="font-headline text-4xl font-bold text-accent md:text-5xl">
                   98%
                 </p>
-                <p className="mt-2 text-sm font-medium leading-snug text-accent-foreground/80">
+                <p className="mt-2 text-sm leading-snug text-muted-foreground">
                   Taxa de satisfação entre usuários ativos
                 </p>
               </div>
-              <div className="flex flex-col justify-center rounded-xl bg-primary p-6 text-primary-foreground shadow-inner sm:p-8">
-                <p className="font-headline text-3xl font-bold sm:text-4xl">
+              <div className="flex flex-1 flex-col justify-center border-l-2 border-primary/30 dark:border-[hsl(234,100%,80%)]/30 pl-6">
+                <p className="font-headline text-4xl font-bold text-primary dark:text-[hsl(234,100%,80%)] md:text-5xl">
                   500+
                 </p>
-                <p className="mt-2 text-sm font-medium leading-snug text-primary-foreground/80">
+                <p className="mt-2 text-sm leading-snug text-muted-foreground">
                   Projetos e contratações na plataforma
                 </p>
-              </div>
-              <div className="relative min-h-[160px] overflow-hidden rounded-xl sm:min-h-[180px]">
-                <Image
-                  src="https://picsum.photos/seed/pronnect-trust-b/500/700"
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                />
               </div>
             </div>
           </div>
@@ -419,7 +498,7 @@ export default function LandingPage() {
         className="border-b border-border/40 bg-muted/50 dark:bg-card/40 px-6 py-20 md:px-10 md:py-28"
       >
         <div className="mx-auto max-w-5xl">
-          <div className="rounded-xl border border-border bg-card p-8 shadow-[0_24px_60px_-28px_rgba(0,32,69,0.2)] md:p-12 md:pt-14 dark:shadow-none">
+          <div className="rounded-[2rem] border border-border bg-card p-8 shadow-[0_24px_60px_-28px_rgba(0,32,69,0.2)] md:p-12 md:pt-14 dark:shadow-none">
             <div className="mb-10 text-center">
               <h2 className="font-headline text-3xl font-bold text-primary dark:text-white md:text-[2rem]">
                 Segurança e confiança no centro
@@ -470,7 +549,7 @@ export default function LandingPage() {
                 className="border-border/80 shadow-sm transition-shadow hover:shadow-md dark:shadow-none"
               >
                 <CardHeader>
-                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10">
+                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-[1rem] bg-accent/10">
                     <span className="material-symbols-outlined text-2xl text-accent">
                       {opt.icon}
                     </span>
@@ -492,6 +571,54 @@ export default function LandingPage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {/* ── FAQ ── */}
+          <div className="mx-auto mt-20 max-w-3xl md:mt-28">
+            <h3 className="mb-10 text-center font-headline text-2xl font-bold text-primary dark:text-white md:text-3xl">
+              Perguntas Frequentes
+            </h3>
+            <div className="flex flex-col gap-3">
+              {faqItems.map((item, i) => {
+                const isOpen = openFaq === i;
+                return (
+                  <div
+                    key={i}
+                    className="rounded-2xl border border-border/80 bg-card transition-shadow hover:shadow-sm dark:border-border/40"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(isOpen ? null : i)}
+                      className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left md:px-8"
+                    >
+                      <span className="font-semibold text-primary dark:text-white">
+                        {item.question}
+                      </span>
+                      <span
+                        className={cn(
+                          "material-symbols-outlined shrink-0 text-xl text-muted-foreground transition-transform duration-300",
+                          isOpen && "rotate-180"
+                        )}
+                      >
+                        expand_more
+                      </span>
+                    </button>
+                    <div
+                      className={cn(
+                        "grid transition-[grid-template-rows] duration-300 ease-in-out",
+                        isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                      )}
+                    >
+                      <div className="overflow-hidden">
+                        <p className="px-6 pb-5 text-sm leading-relaxed text-muted-foreground md:px-8">
+                          {item.answer}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>

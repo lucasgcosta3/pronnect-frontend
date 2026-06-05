@@ -126,6 +126,26 @@
   animation: content-fade 0.35s ease both;
 }
 
+/* ─── Company logo carousel ─── */
+@keyframes scroll-logos {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.logo-carousel-track {
+  display: flex;
+  width: max-content;
+  animation: scroll-logos 20s linear infinite;
+}
+
+.logo-carousel-track:hover {
+  animation-play-state: paused;
+}
+
 /* ─── Smooth theme transition ─── */
 html.transitioning-theme,
 html.transitioning-theme *,

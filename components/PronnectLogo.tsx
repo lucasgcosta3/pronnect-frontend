@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+import logoImg from "@/public/pronnect-logo.png";
 
 type PronnectLogoProps = {
   className?: string;
@@ -8,14 +10,16 @@ type PronnectLogoProps = {
 
 export function PronnectLogo({ className, inverted }: PronnectLogoProps) {
   return (
-    <span
+    <Image
+      src={logoImg}
+      alt="Pronnect"
+      priority
       className={cn(
-        "font-headline text-2xl font-bold tracking-tight text-primary dark:text-white md:text-[1.75rem]",
-        inverted && "text-white",
+        "h-24 w-auto object-contain transition-all duration-300 dark:brightness-0 dark:invert",
+        inverted && "brightness-0 invert",
         className
       )}
-    >
-      Pronnect
-    </span>
+    />
   );
 }
+
