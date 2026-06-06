@@ -34,7 +34,10 @@ export function PixPayment({ payment, onPaymentApproved }: PixPaymentProps) {
   useEffect(() => {
     if (currentPayment.status !== "PENDING" || !currentPayment.expiresAt) return;
 
-    const expiresAt = new Date(currentPayment.expiresAt).getTime();
+    const expiresAtStr = currentPayment.expiresAt;
+    const hasTimezone = expiresAtStr.endsWith("Z") || expiresAtStr.includes("+") || /-\d{2}:\d{2}$/.test(expiresAtStr);
+    const formattedDateStr = hasTimezone ? expiresAtStr : `${expiresAtStr.replace(" ", "T")}Z`;
+    const expiresAt = new Date(formattedDateStr).getTime();
 
     const tick = () => {
       const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));

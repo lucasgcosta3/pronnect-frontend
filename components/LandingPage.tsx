@@ -451,8 +451,8 @@ export default function LandingPage() {
             ))}
           </ul>
           <Link
-            href="/register"
-            className="mt-10 inline-flex items-center gap-1 text-sm font-semibold text-white/80 hover:text-white"
+            href={role ? "/app/professionals" : "/register"}
+            className="mt-10 inline-flex items-center gap-1 rounded-[2rem] border border-white px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-white hover:text-white"
           >
             Contratar talento
             <span className="material-symbols-outlined text-lg">arrow_forward</span>
@@ -484,8 +484,8 @@ export default function LandingPage() {
             ))}
           </ul>
           <Link
-            href="/register"
-            className="mt-10 inline-flex items-center gap-1 text-sm font-semibold text-emerald-200 hover:text-white"
+            href={role ? "/app/projects" : "/register"}
+            className="mt-10 inline-flex items-center gap-1 rounded-[2rem] border border-emerald-300 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-white hover:text-white"
           >
             Encontrar oportunidades
             <span className="material-symbols-outlined text-lg">arrow_forward</span>
