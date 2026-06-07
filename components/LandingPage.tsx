@@ -314,7 +314,7 @@ export default function LandingPage() {
               Quem confia na gente
             </h2>
             <p className="mt-3 max-w-xl text-muted-foreground">
-              Mais de 50 empresas já utilizam a Pronnect para contratar, 
+              Várias empresas já utilizam a Pronnect para contratar, 
               <br />
               gerenciar e escalar equipes de tecnologia.
             </p>
@@ -413,7 +413,7 @@ export default function LandingPage() {
               </div>
               <div className="flex flex-1 flex-col justify-center border-l-2 border-primary/30 dark:border-[hsl(234,100%,80%)]/30 pl-6">
                 <p className="font-headline text-4xl font-bold text-primary dark:text-[hsl(234,100%,80%)] md:text-5xl">
-                  500+
+                  20+
                 </p>
                 <p className="mt-2 text-sm leading-snug text-muted-foreground">
                   Projetos e contratações na plataforma
